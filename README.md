@@ -13,9 +13,9 @@ If using GRIPS for scientific publications, please cite the following paper:
 ```
 
 ## Requirements
-* Eigen
-* OMPL
-* Qt5
+* Eigen 3
+* [OMPL ~1.3.1](https://github.com/ompl/ompl/releases)
+* Qt5 (ensure the Qt Charts and SVG packages are installed)
 
 ## Used third-party tools
 * [nlohmann/json](https://github.com/nlohmann/json) to store path statistics data for plotting

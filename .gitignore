@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# CMake (generated) files
+*.cmake
+CMakeCache.txt
+*automoc.cpp
+GripsConfig.h
+Makefile
+moc_*
+CMakeFiles*
+cmake-*

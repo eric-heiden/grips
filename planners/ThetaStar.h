@@ -5,8 +5,8 @@
 
 #include "planners/stl_thetastar.h"
 #include "base/Trajectory.h"
-
 #include "base/Environment.h"
+
 #include "AbstractPlanner.hpp"
 
 

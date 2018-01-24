@@ -10,7 +10,8 @@
 class OMPLSimplifier : public AbstractPlanner
 {
 public:
-    OMPLSimplifier(const std::vector<GNode> &path) : _path(path), AbstractPlanner()
+    explicit OMPLSimplifier(const std::vector<GNode> &path)
+            : _path(path), AbstractPlanner()
     {
         _steered = PlannerUtils::toSteeredTrajectory(path).getPath();
         _geometric = new og::PathGeometric(ss->getSpaceInformation());

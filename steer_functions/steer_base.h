@@ -59,27 +59,10 @@ public:
 	virtual void initialize()
 	{}
 
-	//TODO move the following methods to Thetastar_planner
-	/**
-     * Save the best cost associated to the key.
-     */
-	virtual int saveBestCost(int xp, int yp, int xs, int ys, double cost)
-    {
-        return 0;
-    }
-
 	/**
      * Find the best cost associated to the key.
      */
 	virtual double getBestCost(int xp, int yp, int xs, int ys) const
-    {
-        return 0;
-    }
-
-	/**
-     * Save the best Yaw associated to the key.
-     */
-	virtual int saveBestYaw(int xp, int yp, int xs, int ys, double orient)
     {
         return 0;
     }

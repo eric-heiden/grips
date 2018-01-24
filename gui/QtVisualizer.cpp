@@ -25,7 +25,7 @@ QGraphicsScene *QtVisualizer::_scene = nullptr;
 
 std::vector<LegendEntry> QtVisualizer::_legend;
 
-int QtVisualizer::_statsTextTop = -1.5;
+int QtVisualizer::_statsTextTop = -2;
 
 bool QtVisualizer::_showStartGoal = true;
 

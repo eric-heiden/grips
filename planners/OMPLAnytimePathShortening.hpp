@@ -29,7 +29,7 @@ public:
         this->ss->setPlanner(planner);
         this->ss->setup();
         auto solved = this->ss->solve(PlannerSettings::PlanningTime);
-        OMPL_INFORM("OMPL anytime path shortening planning status: %s", solved.asString());
+        OMPL_INFORM("OMPL anytime path shortening planning status: %s", solved.asString().c_str());
 
         if (!solved)
             OMPL_WARN("OMPL Anytime PS found no solution.");

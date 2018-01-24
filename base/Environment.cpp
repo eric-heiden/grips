@@ -4,10 +4,15 @@
 #include "PlannerSettings.h"
 #include "gui/QtVisualizer.h"
 
-//#include <pugixml/pugixml.hpp>
-//#include <nav_msgs/GridCells.h>
-//#include <visualization_msgs/Marker.h>
-//#include <visualization_msgs/MarkerArray.h>
+#if XML_SUPPORT
+    #include <pugixml/pugixml.hpp>
+#endif
+
+#if ROS_SUPPORT
+    #include <nav_msgs/GridCells.h>
+    #include <visualization_msgs/Marker.h>
+    #include <visualization_msgs/MarkerArray.h>
+#endif
 
 
 Environment::Environment(unsigned int seed, unsigned int width, unsigned int height)
@@ -89,8 +94,6 @@ Environment *Environment::createRandomCorridor(unsigned int width, unsigned int 
         int x = 2 + rand() % (width - 2);
         int y = 2 + rand() % (height - 2);
 
-//        environment->fill(Rectangle(x - radius, y - radius, x + radius, y + radius), false);
-
         // find closest vertex
         double minDistance = std::numeric_limits<double>::max();
         Tpoint closest;
@@ -111,7 +114,7 @@ Environment *Environment::createRandomCorridor(unsigned int width, unsigned int 
                                        std::min(closest.y, (double)y) - radius,
                                        closest.x + radius,
                                        std::max(closest.y, (double)y) + radius), false);
-            positions.push_back(Tpoint(closest.x, y));
+            positions.emplace_back(closest.x, y);
         }
         else
         {
@@ -121,22 +124,10 @@ Environment *Environment::createRandomCorridor(unsigned int width, unsigned int 
                               closest.y - radius,
                               std::max(closest.x, (double)x) + radius,
                               closest.y + radius), false);
-            positions.push_back(Tpoint(x, closest.y));
+            positions.emplace_back(x, closest.y);
         }
     }
     environment->fillBorder(true, borderSize);
-
-//    // register obstacles in collision checker
-//    for (unsigned int x = 0; x <= environment->_width; ++x)
-//    {
-//        for (unsigned int y = 0; y <= environment->_height; ++y)
-//        {
-//            if (!environment->occupied(x, y))
-//                continue;
-//
-////            environment->_checker->add_obstacle(Tobstacle(x, y, 0, 1, 1));
-//        }
-//    }
 
     environment->computeDistances();
 
@@ -146,7 +137,9 @@ Environment *Environment::createRandomCorridor(unsigned int width, unsigned int 
     {
         if (environment->occupied(p.x, p.y))
         {
+#ifdef DEBUG
             QtVisualizer::drawNode(p.x, p.y);
+#endif
             OMPL_WARN("(%f %f) is occupied.", p.x, p.y);
             continue;
         }
@@ -217,133 +210,137 @@ Environment *Environment::createFromObstacles(const std::vector<Rectangle> &obst
     return environment;
 }
 
-//Environment *Environment::loadFromXml(std::string filename)
-//{
-//    pugi::xml_document doc;
-//    doc.load_file(filename.c_str());
-//
-//    double maxx = std::numeric_limits<double>::min();
-//    double maxy = std::numeric_limits<double>::min();
-//    std::vector<Rectangle> obstacles;
-//    for (auto &node : doc.select_nodes("/scenario/obstacle"))
-//    {
-//        double x1 = node.node().attribute("x1").as_double();
-//        double x2 = node.node().attribute("x2").as_double();
-//        double y1 = node.node().attribute("y1").as_double();
-//        double y2 = node.node().attribute("y2").as_double();
-//        maxx = std::max(maxx, std::max(x1, x2));
-//        maxy = std::max(maxy, std::max(y1, y2));
-//        obstacles.push_back(Rectangle(x1, y1, x2, y2));
-//    }
-//
-//    auto environment = createFromObstacles(obstacles,
-//                                           (unsigned int) std::round(maxx),
-//                                           (unsigned int) std::round(maxy));
-//    environment->_start = Tpoint(3, 3, 0);
-//    environment->_goal = Tpoint(44.5, 36.50, 0);
-//    environment->_type = "XML - " + filename;
-//
-//    return environment;
-//}
+#if XML_SUPPORT
+Environment *Environment::loadFromXml(std::string filename)
+{
+    pugi::xml_document doc;
+    doc.load_file(filename.c_str());
 
-//void Environment::publish(ros::NodeHandle &nodeHandle) const
-//{
-//    ros::Rate loop_rate(5);
-//    auto pub_obstacles_ = nodeHandle.advertise<nav_msgs::GridCells>("static_obstacles", 0);
-//    auto pub_obstacle_cells_ = nodeHandle.advertise<visualization_msgs::MarkerArray>("static_obstacle_cells", 0);
-//    auto pub_start_goal_ = nodeHandle.advertise<visualization_msgs::Marker>("start_goal", 0);
-//    ros::spinOnce();
-//    loop_rate.sleep();
-//
-//    nav_msgs::GridCells obstacles;
-//    obstacles.header.frame_id = "world";
-//    obstacles.cell_width = 1;
-//    obstacles.cell_height = 1;
-//
-//    visualization_msgs::MarkerArray cells;
-//    visualization_msgs::Marker removeAllCells;
-//    removeAllCells.action = 3;
-//    removeAllCells.id = 0;
-//    removeAllCells.header.frame_id = "world";
-//    cells.markers.push_back(removeAllCells);
-//    for (int x = 0; x <= _width; ++x)
-//    {
-//        for (int y = 0; y <= _height; ++y)
-//        {
-//            if (!_grid[coord2key(x, y)])
-//                continue;
-//
-//            geometry_msgs::Point p;
-//            p.x = x + 0.5;
-//            p.y = y + 0.5;
-//            p.z = 0.0;
-//            obstacles.cells.push_back(p);
-//
-//            visualization_msgs::Marker cell;
-//            cell.action = 0;
-//            cell.id = _width * (y+1) + x;
-//            cell.header.frame_id = "world";
-//            cell.type = visualization_msgs::Marker::CUBE;
-//            cell.pose.position.x = x + 0.5;
-//            cell.pose.position.y = y + 0.5;
-//            cell.pose.position.z = 0;
-//            cell.scale.x = 1;
-//            cell.scale.y = 1;
-//            cell.scale.z = 1;
-//            cell.color.a = 1;
-//            cell.color.r = .4;
-//            cell.color.g = .4;
-//            cell.color.b = .4;
-//            cells.markers.push_back(cell);
-//        }
-//    }
-//
-//    visualization_msgs::Marker s, g;
-//    s.header.frame_id = "world";
-//    s.id = 0;
-//    s.type = visualization_msgs::Marker::SPHERE;
-//    s.color.a = 1;
-//    s.color.r = 0.10;
-//    s.color.g = 0.70;
-//    s.color.b = 0.10;
-//    s.scale.x = 1;
-//    s.scale.y = 1;
-//    s.scale.z = 1;
-//    s.action = 0;  // add or modify
-//    s.pose.position.x = _start.x;
-//    s.pose.position.y = _start.y;
-//    s.pose.position.z = 0;
-//
-//    g.header.frame_id = "world";
-//    g.id = 1;
-//    g.type = visualization_msgs::Marker::SPHERE;
-//    g.color.a = 1;
-//    g.color.r = 0.20;
-//    g.color.g = 0.40;
-//    g.color.b = 0.70;
-//    g.scale.x = 1;
-//    g.scale.y = 1;
-//    g.scale.z = 1;
-//    g.action = 0;  // add or modify
-//    g.pose.position.x = _goal.x;
-//    g.pose.position.y = _goal.y;
-//    g.pose.position.z = 0;
-//
-//    ROS_INFO("Start: %f %f", _start.x, _start.y);
-//    ROS_INFO("Goal:  %f %f", _goal.x, _goal.y);
-//
-//    for (int i = 0; i < 2; ++i)
-//    {
-//        pub_obstacles_.publish(obstacles);
-//        pub_obstacle_cells_.publish(cells);
-//
-//        pub_start_goal_.publish(s);
-//        pub_start_goal_.publish(g);
-//
-//        ros::spinOnce();
-//        loop_rate.sleep();
-//    }
-//}
+    double maxx = std::numeric_limits<double>::min();
+    double maxy = std::numeric_limits<double>::min();
+    std::vector<Rectangle> obstacles;
+    for (auto &node : doc.select_nodes("/scenario/obstacle"))
+    {
+        double x1 = node.node().attribute("x1").as_double();
+        double x2 = node.node().attribute("x2").as_double();
+        double y1 = node.node().attribute("y1").as_double();
+        double y2 = node.node().attribute("y2").as_double();
+        maxx = std::max(maxx, std::max(x1, x2));
+        maxy = std::max(maxy, std::max(y1, y2));
+        obstacles.push_back(Rectangle(x1, y1, x2, y2));
+    }
+
+    auto environment = createFromObstacles(obstacles,
+                                           (unsigned int) std::round(maxx),
+                                           (unsigned int) std::round(maxy));
+    environment->_start = Tpoint(3, 3, 0);
+    environment->_goal = Tpoint(44.5, 36.50, 0);
+    environment->_type = "XML - " + filename;
+
+    return environment;
+}
+#endif
+
+#if ROS_SUPPORT
+void Environment::publish(ros::NodeHandle &nodeHandle) const
+{
+    ros::Rate loop_rate(5);
+    auto pub_obstacles_ = nodeHandle.advertise<nav_msgs::GridCells>("static_obstacles", 0);
+    auto pub_obstacle_cells_ = nodeHandle.advertise<visualization_msgs::MarkerArray>("static_obstacle_cells", 0);
+    auto pub_start_goal_ = nodeHandle.advertise<visualization_msgs::Marker>("start_goal", 0);
+    ros::spinOnce();
+    loop_rate.sleep();
+
+    nav_msgs::GridCells obstacles;
+    obstacles.header.frame_id = "world";
+    obstacles.cell_width = 1;
+    obstacles.cell_height = 1;
+
+    visualization_msgs::MarkerArray cells;
+    visualization_msgs::Marker removeAllCells;
+    removeAllCells.action = 3;
+    removeAllCells.id = 0;
+    removeAllCells.header.frame_id = "world";
+    cells.markers.push_back(removeAllCells);
+    for (int x = 0; x <= _width; ++x)
+    {
+        for (int y = 0; y <= _height; ++y)
+        {
+            if (!_grid[coord2key(x, y)])
+                continue;
+
+            geometry_msgs::Point p;
+            p.x = x + 0.5;
+            p.y = y + 0.5;
+            p.z = 0.0;
+            obstacles.cells.push_back(p);
+
+            visualization_msgs::Marker cell;
+            cell.action = 0;
+            cell.id = _width * (y+1) + x;
+            cell.header.frame_id = "world";
+            cell.type = visualization_msgs::Marker::CUBE;
+            cell.pose.position.x = x + 0.5;
+            cell.pose.position.y = y + 0.5;
+            cell.pose.position.z = 0;
+            cell.scale.x = 1;
+            cell.scale.y = 1;
+            cell.scale.z = 1;
+            cell.color.a = 1;
+            cell.color.r = .4;
+            cell.color.g = .4;
+            cell.color.b = .4;
+            cells.markers.push_back(cell);
+        }
+    }
+
+    visualization_msgs::Marker s, g;
+    s.header.frame_id = "world";
+    s.id = 0;
+    s.type = visualization_msgs::Marker::SPHERE;
+    s.color.a = 1;
+    s.color.r = 0.10;
+    s.color.g = 0.70;
+    s.color.b = 0.10;
+    s.scale.x = 1;
+    s.scale.y = 1;
+    s.scale.z = 1;
+    s.action = 0;  // add or modify
+    s.pose.position.x = _start.x;
+    s.pose.position.y = _start.y;
+    s.pose.position.z = 0;
+
+    g.header.frame_id = "world";
+    g.id = 1;
+    g.type = visualization_msgs::Marker::SPHERE;
+    g.color.a = 1;
+    g.color.r = 0.20;
+    g.color.g = 0.40;
+    g.color.b = 0.70;
+    g.scale.x = 1;
+    g.scale.y = 1;
+    g.scale.z = 1;
+    g.action = 0;  // add or modify
+    g.pose.position.x = _goal.x;
+    g.pose.position.y = _goal.y;
+    g.pose.position.z = 0;
+
+    ROS_INFO("Start: %f %f", _start.x, _start.y);
+    ROS_INFO("Goal:  %f %f", _goal.x, _goal.y);
+
+    for (int i = 0; i < 2; ++i)
+    {
+        pub_obstacles_.publish(obstacles);
+        pub_obstacle_cells_.publish(cells);
+
+        pub_start_goal_.publish(s);
+        pub_start_goal_.publish(g);
+
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+}
+#endif
 
 bool Environment::collides(const Trajectory &trajectory)
 {
@@ -351,17 +348,12 @@ bool Environment::collides(const Trajectory &trajectory)
     {
         if (occupied(p.x, p.y))
         {
+#ifdef DEBUG
             QtVisualizer::drawNode(p.x, p.y, QColor(255, 255, 0, 150), .5);
+#endif
             return true;
         }
     }
-
-    // slow collision check
-//    for (auto &p : trajectory.getPath())
-//    {
-//        if (_checker->check_collision_state_circle(p.x, p.y, 0) == 0)
-//            return true;
-//    }
 
     return false;
 }
@@ -371,7 +363,7 @@ bool Environment::collides(double x, double y)
     return occupied(x, y);// || _checker->check_collision_state_circle(x, y, 0) == 0;
 }
 
-std::vector<Rectangle> Environment::obstacles()
+std::vector<Rectangle> Environment::obstacles() const
 {
     std::vector<Rectangle> obs;
     for (unsigned int x = 0; x <= _width; ++x)
@@ -387,7 +379,7 @@ std::vector<Rectangle> Environment::obstacles()
     return obs;
 }
 
-std::vector<Rectangle> Environment::obstacles(double x1, double y1, double x2, double y2)
+std::vector<Rectangle> Environment::obstacles(double x1, double y1, double x2, double y2) const
 {
     std::vector<Rectangle> obs;
     for (auto x = (unsigned int) std::round(x1); x <= std::round(x2); ++x)
@@ -418,43 +410,11 @@ void Environment::computeDistances()
             {
                 for (int dy = 0; dy <= _height; ++dy)
                 {
-//                    if (dx==x && dy==y)
-//                        continue;
                     if (occupied((double)dx, (double)dy, true))
                     {
                         double d = std::sqrt(std::pow(dx - x, 2) + std::pow(dy - y, 2));
                         minDistance = std::min(d, minDistance);
                     }
-//                    if (_grid[coord2key(dx-1, dy)])
-//                    {
-//                        double d = std::sqrt(std::pow(dx - x+1, 2) + std::pow(dy - y, 2));
-//                        minDistance = std::min(d, minDistance);
-//                    }
-//                    if (_grid[coord2key(dx, dy-1)])
-//                    {
-//                        double d = std::sqrt(std::pow(dx - x, 2) + std::pow(dy - y+1, 2));
-//                        minDistance = std::min(d, minDistance);
-//                    }
-//                    if (_grid[coord2key(dx-1, dy-1)])
-//                    {
-//                        double d = std::sqrt(std::pow(dx - x+1, 2) + std::pow(dy - y+1, 2));
-//                        minDistance = std::min(d, minDistance);
-//                    }
-//                    if (_grid[coord2key(dx+1, dy)])
-//                    {
-//                        double d = std::sqrt(std::pow(dx - x-1, 2) + std::pow(dy - y, 2));
-//                        minDistance = std::min(d, minDistance);
-//                    }
-//                    if (_grid[coord2key(dx, dy+1)])
-//                    {
-//                        double d = std::sqrt(std::pow(dx - x, 2) + std::pow(dy - y-1, 2));
-//                        minDistance = std::min(d, minDistance);
-//                    }
-//                    if (_grid[coord2key(dx+1, dy+1)])
-//                    {
-//                        double d = std::sqrt(std::pow(dx - x-1, 2) + std::pow(dy - y-1, 2));
-//                        minDistance = std::min(d, minDistance);
-//                    }
                 }
             }
             _distances[coord2key(x, y)] = minDistance;
@@ -472,7 +432,7 @@ Environment *Environment::createSimple()
     return environment;
 }
 
-double Environment::obstacleRatio()
+double Environment::obstacleRatio() const
 {
     int occ = 0;
     for (unsigned int x = 0; x <= _width; ++x)

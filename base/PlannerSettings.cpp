@@ -3,14 +3,16 @@
 #include "steer_functions/POSQ/POSQSteering.h"
 #include "steer_functions/Linear/LinearSteering.h"
 #include "steer_functions/Dubins/DubinsSteering.h"
-#include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
+#ifdef G1_AVAILABLE
+    #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
+#endif
 
 Environment *PlannerSettings::environment = nullptr;
 
 int PlannerSettings::numberEdges = 10;
 
 // steering function settings
-Steering::SteeringType PlannerSettings::steeringType = Steering::STEER_TYPE_POSQ;
+Steering::SteeringType PlannerSettings::steeringType = Steering::STEER_TYPE_REEDS_SHEPP;
 double PlannerSettings::CarTurningRadius = 3.5;
 
 SteerFunction *PlannerSettings::steering = nullptr;
@@ -30,6 +32,14 @@ void PlannerSettings::initializeSteering()
         PlannerSettings::steering = new LinearSteering;
     else if (steeringType == Steering::STEER_TYPE_DUBINS)
         PlannerSettings::steering = new DubinsSteering(PlannerSettings::CarTurningRadius);
+#ifdef G1_AVAILABLE
     else if (steeringType == Steering::STEER_TYPE_CLOTHOID)
         PlannerSettings::steering = new ClothoidSteering;
+#else
+    else if (steeringType == Steering::STEER_TYPE_CLOTHOID)
+    {
+        OMPL_ERROR("G1 Clothoid steering is not available in this release!");
+        OMPL_ERROR("Select a steering type other than STEER_TYPE_CLOTHOID in PlannerSettings.");
+    }
+#endif
 }

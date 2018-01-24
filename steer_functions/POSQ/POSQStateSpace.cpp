@@ -8,7 +8,6 @@
 void POSQStateSpace::initialize()
 {
     state_space_ = new POSQ();
-//    OMPL_DEBUG("New POSQSteering initialized");
 }
 
 double POSQStateSpace::distance(const ompl::base::State *state1, const ompl::base::State *state2) const
@@ -22,7 +21,6 @@ double POSQStateSpace::distance(const ompl::base::State *state1, const ompl::bas
 void POSQStateSpace::interpolate(const ompl::base::State *from, const ompl::base::State *to, const double t,
                                  ompl::base::State *state) const
 {
-    // OMPL_DEBUG("Simple interpolate");
     bool firstTime = true;
     vector<UnicycleState> states;
     states.clear();

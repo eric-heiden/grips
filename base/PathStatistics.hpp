@@ -2,6 +2,7 @@
 
 #include <QtCore/Qt>
 #include <QtGui/QColor>
+#include <utility>
 
 struct PathStatistics
 {
@@ -36,9 +37,10 @@ struct PathStatistics
     std::string planner;
     QColor color;
 
-    PathStatistics(std::string planner = "UNKNOWN",
-                   QColor color = Qt::white)
-            : planner(planner), color(color)
+    explicit PathStatistics(
+                std::string planner = "UNKNOWN",
+                QColor color = Qt::white)
+            : planner(std::move(planner)), color(std::move(color))
     {}
 };
 

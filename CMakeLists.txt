@@ -5,7 +5,6 @@ project(grips)
 set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_PREFIX_PATH /opt/Qt5.7.0/5.7/gcc_64;${CMAKE_PREFIX_PATH})
-
 set(Qt5Core_DIR "/opt/Qt5.7.0/5.7/gcc_64/lib/cmake/Qt5Core")
 set(Qt5_DIR "/opt/Qt5.7.0/5.7/gcc_64/lib/cmake/Qt5")
 set(QT_QMAKE_EXECUTABLE "/opt/Qt5.7.0/5.7/gcc_64/bin/qmake.exe")
@@ -35,8 +34,8 @@ if (USE_G1)
             steer_functions/G1Clothoid/*.cc)
     set(EXTRA_SRC ${EXTRA_SRC} ${G1_SRC})
     set(EXTRA_LIB ${EXTRA_LIB} g1clothoid)
+    add_definitions(-DG1_AVAILABLE)
 endif (USE_G1)
-
 
 include_directories(${PROJECT_SOURCE_DIR})
 

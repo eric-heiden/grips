@@ -2,12 +2,7 @@
 #include <fstream>
 #include <chrono>
 
-#include <QtCharts>
-#include <QtWidgets/QMainWindow>
-#include <QtCharts/QChartView>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QScatterSeries>
-
+#include "base/TimedResult.hpp"
 #include "base/gnode.h"
 #include "base/PlannerUtils.hpp"
 #include "base/PlannerSettings.h"
@@ -17,8 +12,6 @@
 #include "metrics/PathLengthMetric.h"
 #include "metrics/CurvatureMetric.h"
 
-
-using namespace QtCharts;
 
 class PostSmoothing
 {
@@ -57,6 +50,7 @@ public:
         ROUND_ORIGINAL,
         ROUND_UNKOWN
     };
+
     struct RoundStats
     {
         double pathLength = -1;
@@ -74,16 +68,18 @@ public:
         double maxTrajObstacleDistance = -1;
         double stdTrajObstacleDistance = -1;
         RoundType type = ROUND_UNKOWN;
-        std::chrono::time_point<std::chrono::system_clock> start;
+        TimedResult stopWatch;
 
-        std::string typeName() const
-        {
-            switch (type)
-            {
-                case ROUND_GD: return "gd";
-                case ROUND_PRUNING: return "pruning";
-                case ROUND_ORIGINAL: return "original";
-                default: return "unknown";
+        std::string typeName() const {
+            switch (type) {
+                case ROUND_GD:
+                    return "gd";
+                case ROUND_PRUNING:
+                    return "pruning";
+                case ROUND_ORIGINAL:
+                    return "original";
+                default:
+                    return "unknown";
             }
         }
     };
@@ -105,37 +101,39 @@ public:
     }
 
 private:
-    static void fixCollision(std::vector<GNode> &path, const std::vector<Tpoint> &originalPathIntermediaries,
-                             const Tpoint &node, unsigned int i)
-    {
-        auto closest = PlannerUtils::closestPoint(node, originalPathIntermediaries);
-        GNode repair;
-        if (closest.euclidianDistance(path[i-1]) < MIN_NODE_DISTANCE)
-        {
-            path[i-1].x_r = closest.x_r;
-            path[i-1].y_r = closest.y_r;
-//                    path[i-1].theta = closest.theta;
-            repair = path[i-1];
-        }
-        else if (closest.euclidianDistance(path[i]) < MIN_NODE_DISTANCE)
-        {
-            path[i].x_r = closest.x_r;
-            path[i].y_r = closest.y_r;
-//                    path[i].theta = closest.theta;
-            repair = path[i];
-        }
-        else
-        {
-            repair = GNode(closest.x, closest.y, PlannerUtils::slope(path[i-1], path[i]));
-            path.insert(path.begin() + i, repair);
-        }
-#ifdef DEBUG
-        QtVisualizer::drawNode(repair, Qt::cyan, 0.4);
-#endif
-    }
+//    static void fixCollision(std::vector<GNode> &path,
+//                             const std::vector<Tpoint> &originalPathIntermediaries,
+//                             const Tpoint &node,
+//                             unsigned int i)
+//    {
+//        auto closest = PlannerUtils::closestPoint(node, originalPathIntermediaries);
+//        GNode repair;
+//        if (closest.euclidianDistance(path[i - 1]) < MIN_NODE_DISTANCE)
+//        {
+//            path[i - 1].x_r = closest.x_r;
+//            path[i - 1].y_r = closest.y_r;
+////                    path[i-1].theta = closest.theta;
+//            repair = path[i - 1];
+//        } else if (closest.euclidianDistance(path[i]) < MIN_NODE_DISTANCE)
+//        {
+//            path[i].x_r = closest.x_r;
+//            path[i].y_r = closest.y_r;
+////                    path[i].theta = closest.theta;
+//            repair = path[i];
+//        } else {
+//            repair = GNode(closest.x, closest.y, PlannerUtils::slope(path[i - 1], path[i]));
+//            path.insert(path.begin() + i, repair);
+//        }
+//#ifdef DEBUG
+//        QtVisualizer::drawNode(repair, Qt::cyan, 0.4);
+//#endif
+//    }
 
     static RoundStats roundStats;
+
     static void beginRound(RoundType type = ROUND_UNKOWN);
+
     static void endRound(const std::vector<GNode> &path);
-    static std::chrono::time_point<std::chrono::system_clock> currentTime;
+
+    static Stopwatch stopWatch;
 };

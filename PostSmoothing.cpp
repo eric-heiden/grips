@@ -1,6 +1,5 @@
 #include "PostSmoothing.h"
 
-
 int PostSmoothing::insertedNodes = 0;
 int PostSmoothing::pruningRounds = 0;
 int PostSmoothing::collisionFixAttempts = 0;
@@ -9,7 +8,7 @@ std::vector<int> PostSmoothing::nodesPerRound;
 std::vector<PostSmoothing::RoundStats> PostSmoothing::statsPerRound;
 PostSmoothing::RoundStats PostSmoothing::roundStats;
 double PostSmoothing::smoothingTime = 0;
-std::chrono::time_point<std::chrono::system_clock> PostSmoothing::currentTime;
+Stopwatch PostSmoothing::stopWatch;
 
 bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &originalPathIntermediaries)
 {
@@ -27,7 +26,7 @@ bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &
     endRound(path);
 
     smoothingTime = 0;
-    currentTime = std::chrono::system_clock::now();
+    stopWatch.start();
 
     PlannerUtils::updateAngles(path, AverageAngles);
 
@@ -120,8 +119,8 @@ bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &
         {
             OMPL_ERROR("Giving up pruning after %i rounds. The smoothed trajectory most likely collides.",
                        pruningRound);
-            std::chrono::duration<double> diff = std::chrono::system_clock::now() - currentTime;
-            smoothingTime += diff.count();
+            stopWatch.stop();
+            smoothingTime = stopWatch.time;
             return false;
         }
 
@@ -249,8 +248,8 @@ bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &
     }
     while (lastPathLength != path.size() || fixes > 0);
 
-    std::chrono::duration<double> diff = std::chrono::system_clock::now() - currentTime;
-    smoothingTime += diff.count();
+    stopWatch.stop();
+    smoothingTime += stopWatch.time;
 
 #ifdef DEBUG
 //    for (auto &n : path)
@@ -271,7 +270,7 @@ bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &
 void PostSmoothing::beginRound(PostSmoothing::RoundType type)
 {
 #ifdef STATS
-    roundStats.start = std::chrono::system_clock::now();
+    roundStats.stopWatch.start();
     roundStats.type = type;
 #endif
 }
@@ -279,11 +278,10 @@ void PostSmoothing::beginRound(PostSmoothing::RoundType type)
 void PostSmoothing::endRound(const std::vector<GNode> &path)
 {
 #ifdef STATS
-    std::chrono::duration<double> diff = std::chrono::system_clock::now() - currentTime;
-    smoothingTime += diff.count();
+    stopWatch.pause();
     static std::vector<double> nodeDistances, trajDistances;
-    diff = std::chrono::system_clock::now() - roundStats.start;
-    roundStats.time = diff.count();
+    roundStats.stopWatch.stop();
+    roundStats.time = roundStats.stopWatch.time;
     roundStats.pathLength = PathLengthMetric::evaluate(path);
     roundStats.maxCurvature = CurvatureMetric::evaluate(path);
     roundStats.nodes = (int)path.size();
@@ -304,6 +302,6 @@ void PostSmoothing::endRound(const std::vector<GNode> &path)
     roundStats.maxTrajObstacleDistance = stat::max(trajDistances);
     roundStats.stdTrajObstacleDistance = stat::std(trajDistances);
     statsPerRound.push_back(roundStats);
-    currentTime = std::chrono::system_clock::now();
+    stopWatch.resume();
 #endif
 }

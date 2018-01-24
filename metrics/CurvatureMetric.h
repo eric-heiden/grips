@@ -78,7 +78,7 @@ public:
             // p1 - p2 - p1
             if (x1 == x3 && y1 == y3)
             {
-                std::cout << "Warning! Undefined curvature! Skipping three steps..." << std::endl;
+                OMPL_WARN("Undefined curvature. Skipping three steps...");
                 continue;
             }
 
@@ -153,7 +153,7 @@ public:
             // p1 - p2 - p1
             if (x1 == x3 && y1 == y3)
             {
-                std::cout << "Warning! Undefined curvature! Skipping three steps..." << std::endl;
+                OMPL_WARN("Undefined curvature. Skipping three steps...");
                 continue;
             }
 

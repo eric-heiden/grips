@@ -54,7 +54,9 @@ public:
         ss->setup();
 
         auto solved = ss->solve(PlannerSettings::PlanningTime);
-        OMPL_INFORM("OMPL planning status: %s", solved.asString());
+        OMPL_INFORM("OMPL %s planning status: %s",
+                    _omplPlanner->getName().c_str(),
+                    solved.asString().c_str());
 
         if (solved)
         {
@@ -62,7 +64,7 @@ public:
             // Output the length of the path found
             OMPL_INFORM(
                     "%s found a solution of length %f with an optimization objective value of %f",
-                    _omplPlanner->getName(),
+                    _omplPlanner->getName().c_str(),
                     ss->getSolutionPath().length(),
                     ss->getSolutionPath().cost(ss->getOptimizationObjective())
             );

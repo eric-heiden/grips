@@ -1,6 +1,5 @@
 #pragma once
 
-#include <chrono>
 #include <utility>
 
 #include <ompl/geometric/planners/rrt/SORRTstar.h>
@@ -11,39 +10,16 @@
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
+#ifdef G1_AVAILABLE
+    #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
+#endif
 
-#include "base/gnode.h"
 #include "steer_functions/POSQ/POSQStateSpace.h"
-#include "steer_functions/G1Clothoid/G1ClothoidStateSpace.h"
-#include "gui/QtVisualizer.h"
+#include "base/gnode.h"
+#include "base/TimedResult.hpp"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
-
-struct TimedResult
-{
-    std::vector<Tpoint> trajectory;
-    double time;
-    ob::PlannerStatus status;
-    TimedResult(std::vector<Tpoint> trajectory = std::vector<Tpoint>(),
-                double time = 0)
-            : trajectory(std::move(trajectory)), time(time)
-    {}
-
-    void start()
-    {
-        _begin = std::chrono::system_clock::now();
-    }
-
-    void finish()
-    {
-        std::chrono::duration<double> duration = std::chrono::system_clock::now() - _begin;
-        time = duration.count();
-    }
-
-private:
-    std::chrono::time_point<std::chrono::system_clock> _begin;
-};
 
 class AbstractPlanner
 {
@@ -79,17 +55,13 @@ public:
         r.start();
         ps.shortcutPath(path, SHORTCUT_MAX_STEPS, SHORTCUT_MAX_EMPTY_STEPS,
                         SHORTCUT_RANGE_RATIO, SHORTCUT_SNAP_TO_VERTEX);
-        r.finish();
+        r.stop();
 
         // have to reduce resolution
         path.interpolate();
 //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
         for (auto *state : path.getStates())
         {
-//            const auto *state2D = state->as<ob::RealVectorStateSpace::StateType>();
-//            // Extract the robot's (x,y) position from its state
-//            double x = state2D->values[0];
-//            double y = state2D->values[1];
             const auto *s = state->as<ob::SE2StateSpace::StateType>();
             double x=s->getX(), y=s->getY();
             r.trajectory.emplace_back(x, y);
@@ -107,17 +79,13 @@ public:
 
         r.start();
         ps.smoothBSpline(path, BSPLINE_MAX_STEPS, BSPLINE_EPSILON);
-        r.finish();
+        r.stop();
 
         // have to reduce resolution
         path.interpolate();
 //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
         for (auto *state : path.getStates())
         {
-//            const auto *state2D = state->as<ob::RealVectorStateSpace::StateType>();
-//            // Extract the robot's (x,y) position from its state
-//            double x = state2D->values[0];
-//            double y = state2D->values[1];
             const auto *s = state->as<ob::SE2StateSpace::StateType>();
             double x=s->getX(), y=s->getY();
             r.trajectory.emplace_back(x, y);
@@ -133,31 +101,15 @@ public:
         og::PathSimplifier ps(ss->getSpaceInformation(), ss->getGoal());
 
         r.start();
-//        for (auto *state : path.getStates())
-//        {
-////            const auto *state2D = state->as<ob::RealVectorStateSpace::StateType>();
-////            // Extract the robot's (x,y) position from its state
-////            double x = state2D->values[0];
-////            double y = state2D->values[1];
-//            const auto *s = state->as<ob::SE2StateSpace::StateType>();
-//            double x=s->getX(), y=s->getY();
-//            QtVisualizer::drawNode(x, y);
-////            std::cout << "Geometric State: " << x << " " << y << std::endl;
-//        }
         ps.simplifyMax(path);
-        r.finish();
+        r.stop();
 
         path.interpolate();
         for (auto *state : path.getStates())
         {
-//            const auto *state2D = state->as<ob::RealVectorStateSpace::StateType>();
-//            // Extract the robot's (x,y) position from its state
-//            double x = state2D->values[0];
-//            double y = state2D->values[1];
             const auto *s = state->as<ob::SE2StateSpace::StateType>();
             double x=s->getX(), y=s->getY();
             r.trajectory.emplace_back(x, y);
-//            std::cout << "Geometric State: " << x << " " << y << std::endl;
         }
         return r;
     }
@@ -173,7 +125,7 @@ public:
         this->ss->setPlanner(planner);
         this->ss->setup();
         auto solved = this->ss->solve(PlannerSettings::PlanningTime);
-        std::cout << "OMPL anytime path shortening planning status: " << solved.asString() << std::endl;
+        std::cout << "OMPL anytime path shortening planning status: " << solved.asString().c_str() << std::endl;
 
         TimedResult r;
         r.status = solved;
@@ -196,27 +148,10 @@ public:
 //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
             for (auto *state : path.getStates())
             {
-//            const auto *state2D = state->as<ob::RealVectorStateSpace::StateType>();
-//            // Extract the robot's (x,y) position from its state
-//            double x = state2D->values[0];
-//            double y = state2D->values[1];
                 const auto *s = state->as<ob::SE2StateSpace::StateType>();
                 double x=s->getX(), y=s->getY();
                 r.trajectory.emplace_back(x, y);
             }
-
-//            auto path = boost::static_pointer_cast<og::PathGeometric>(pdef->getSolutionPath());
-//
-//            std::vector<GNode> gnodes;
-//            for (auto *state : path->getStates())
-//            {
-//                const auto * state2D = state->as<ob::SE2StateSpace::StateType>();
-//                // Extract the robot's (x,y) position from its state
-//                double x = state2D->values[0];
-//                double y = state2D->values[1];
-//                gnodes.push_back(GNode(x, y));
-//            }
-//            QtVisualizer::drawPath(gnodes, Qt::blue, 3.f);
         }
         else
             std::cout << "No solution found." << std::endl;
@@ -241,12 +176,14 @@ protected:
             space = ob::StateSpacePtr(new ob::ReedsSheppStateSpace(PlannerSettings::CarTurningRadius));
         else if (PlannerSettings::steeringType == Steering::STEER_TYPE_POSQ)
             space = ob::StateSpacePtr(new POSQStateSpace());
-        else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID)
-            space = ob::StateSpacePtr(new G1ClothoidStateSpace());
         else if (PlannerSettings::steeringType == Steering::STEER_TYPE_DUBINS)
             space = ob::StateSpacePtr(new ob::DubinsStateSpace(PlannerSettings::CarTurningRadius));
         else if (PlannerSettings::steeringType == Steering::STEER_TYPE_LINEAR)
             space = ob::StateSpacePtr(new ob::SE2StateSpace);
+#ifdef G1_AVAILABLE
+        else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID)
+            space = ob::StateSpacePtr(new G1ClothoidStateSpace());
+#endif
 
 //        space->setLongestValidSegmentFraction(0.1);
 //        space->as<ob::RealVectorStateSpace>()->setBounds(bounds);
@@ -275,6 +212,7 @@ protected:
             si->setMotionValidator(motionValidator);
             si->setStateValidityCheckingResolution(0.002);
         }
+#ifdef G1_AVAILABLE
         else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID)
         {
             ob::MotionValidatorPtr motionValidator(new G1ClothoidStateSpaceValidator(si));
@@ -283,8 +221,7 @@ protected:
             // lower granularity necessary to avoid too densely spaced nodes
             // which causes problems in Clothoid steering
         }
-
-//        si->setup();
+#endif
 
         // Set our robot's starting state
         ob::ScopedState<> start(space);
@@ -304,14 +241,6 @@ protected:
         oo->setCostThreshold(ob::Cost(100000.0)); // TODO finish after first solution has been found
         ss->setOptimizationObjective(oo);
         ss->setup();
-
-//        // Create a problem instance
-//        pdef = ob::ProblemDefinitionPtr(new ob::ProblemDefinition(si));
-//        // Set the start and goal states
-//        pdef->setStartAndGoalStates(start, goal);
-//
-//        pdef->setOptimizationObjective(ob::OptimizationObjectivePtr(
-//                new ob::PathLengthOptimizationObjective(si)));
     }
 
 protected:

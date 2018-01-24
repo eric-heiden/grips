@@ -1,6 +1,5 @@
 #include <ompl/base/Planner.h>
 #include <base/PlannerUtils.hpp>
-#include <chrono>
 #include <utility>
 
 #include "AbstractPlanner.hpp"
@@ -60,7 +59,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
 {
     paths.clear();
 
-    OMPL_INFORM("Start: %d, %d --- Goal: %d, %d ", start.x, start.y, goal.x, goal.y);
+    OMPL_DEBUG("Theta*: Start: %d, %d --- Goal: %d, %d ", start.x, start.y, goal.x, goal.y);
 
     std::vector<GNode> sol;
     std::vector<std::vector<GNode> > path_sol;
@@ -192,7 +191,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
 
         if (SearchState == ThetaStarSearch<GNode>::SEARCH_STATE_SUCCEEDED)
         {
-            OMPL_DEBUG("Theta* search found goal state");
+            OMPL_DEBUG("Theta* search found goal state.");
 
             GNode *node = thetastarsearch.GetSolutionStart();
             int steps = 0;
@@ -201,19 +200,20 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
             xs = node->x;
             ys = node->y;
             sol.emplace_back(GNode(xs, ys, node->theta, node->steer, node->steer_cost, node->costs, node->orientations));
-//            OMPL_INFORM("Nodes: %d,%d,%f,%f", xs, ys, node->theta, node->steer_cost);
-            // cout<<" "<<xs<<" "<<ys<<endl;
+
             while ((node = thetastarsearch.GetSolutionNext()))
             {
                 xs = (int) node->x_r;
                 ys = (int) node->y_r;
-//                OMPL_INFORM("Solution Node %d, (x_r, y_r, theta_r): (%f,%f,%f)", steps, node->x_r, node->y_r, node->theta);
                 sol.emplace_back(*node);
-                // sol.push_back(GNode(xs,ys,node->theta,node->steer,node->steer_cost, node->costs,node->orientations,node->x_r,node->y_r));
-                GNode s(xs, ys, node->theta, node->steer, node->steer_cost, node->costs, node->orientations, node->x_r,
+                GNode s(xs, ys,
+                        node->theta,
+                        node->steer,
+                        node->steer_cost,
+                        node->costs,
+                        node->orientations,
+                        node->x_r,
                         node->y_r);
-//                OMPL_INFORM("Solution Stored Node %d, (x_r, y_r, theta_r): (%f,%f,%f)", steps, s.x_r, s.y_r, s.theta);
-
                 steps++;
             }
 
@@ -222,7 +222,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
         }
         else if (SearchState == ThetaStarSearch<GNode>::SEARCH_STATE_FAILED)
         {
-            OMPL_ERROR("Theta* search terminated. Did not find goal state");
+            OMPL_ERROR("Theta* search terminated. Did not find goal state.");
         }
 
         // Display the number of loops the search went through
@@ -236,7 +236,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
     paths.push_back(sol);
 
     unsigned long path_size = paths.size();
-    OMPL_INFORM("Theta* found [ %d ] path(s).", (int)path_size);
+    OMPL_INFORM("Theta* found %d path(s).", (int)path_size);
 
     return path_size > 0;
 }
@@ -333,17 +333,18 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc)
 
     PlannerSettings::steering->clearInternalData();
 
-    OMPL_INFORM("Generate a new global path");
-    auto begin_time = std::chrono::system_clock::now();
+    OMPL_DEBUG("Theta*: Generate a new global path");
+    Stopwatch sw;
+    sw.start();
     search(global_paths, startNode, goalNode);
-    std::chrono::duration<double> diff = std::chrono::system_clock::now() - begin_time;
-    _planningTime = diff.count();
+    sw.stop();
+    _planningTime = sw.time;
 
-    OMPL_INFORM("Search finished");
-    OMPL_INFORM("Global path size : %d", (int) global_paths[0].size());
+    OMPL_INFORM("Theta* search finished");
+    OMPL_DEBUG("Global path size: %d", (int) global_paths[0].size());
     if ((int) global_paths[0].size() == 0)
     {
-        OMPL_ERROR("No Path found");
+        OMPL_WARN("Theta*: No Path found");
         return ob::PlannerStatus::ABORT;
     }
 

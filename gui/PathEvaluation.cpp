@@ -181,7 +181,6 @@ double findMaximumAxis(double max)
 
     while (a/2. > max)
         a /= 2.;
-    std::cout << "max: " << max << "   axis: " << a << std::endl;
     return a;
 }
 
@@ -209,7 +208,7 @@ void PathEvaluation::show()
     _pathLengthSeries->append(_omplSmoothed3PathLengthSet);
     _pathLengthSeries->append(_omplSmoothed4PathLengthSet);
     _pathLengths->createDefaultAxes();
-    std::cout << "Maximum path length: " << _maxPathLength << std::endl;
+    OMPL_DEBUG("Maximum path length: %.2f", _maxPathLength);
     auto *pathLengthLabelsBarAxis = new QBarCategoryAxis();
     pathLengthLabelsBarAxis->append(_labels);
     _pathLengths->setAxisX(pathLengthLabelsBarAxis, _pathLengthSeries);
@@ -254,7 +253,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
     if (!planner->run())
     {
         stats.pathFound = false;
-        std::cerr << "Planner " << label << " couldn't find a solution." << std::endl;
+        OMPL_ERROR("Planner %s couldn't find a solution.", label.c_str());
         return stats;
     }
     stats.pathFound = true;
@@ -266,9 +265,9 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
     stats.planningTime = planningTime;
 //    auto begin_time = ros::WallTime::now().toSec();
     std::vector<GNode> smoothed(trajectory);
-    OMPL_INFORM("Running our smoothing method on %s ...", label);
+    OMPL_INFORM("Running our smoothing method on %s ...", label.c_str());
     PostSmoothing::smooth(smoothed, path);
-    auto postsmoothing_time = PostSmoothing::smoothingTime; //(ros::WallTime::now().toSec() - begin_time) + planningTime;
+    auto postsmoothing_time = planningTime + PostSmoothing::smoothingTime;
     auto smoothedTrajPoints = PlannerUtils::toSteeredTrajectoryPoints(smoothed);
     auto *smoothedTraj = new Trajectory(smoothedTrajPoints);
     double smoothedPathLength = PathLengthMetric::evaluate(smoothedTraj);
@@ -319,7 +318,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
     }
     stats.ourSmoothingCollides = PlannerUtils::collides(smoothedTrajPoints);
     if (stats.ourSmoothingCollides)
-        OMPL_WARN("%s collides with our smoothing!", label);
+        OMPL_WARN("%s collides with our smoothing!", label.c_str());
 
     if (stats.exactGoalPath && !stats.ourSmoothingCollides)
     {
@@ -359,6 +358,9 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
 //              << pathLength << std::endl;
 //    _pathLengthSeries->append(pathLengthBarSet);
 
+    stats.curvature = curvature;
+    stats.pathLength = pathLength;
+
     *_originalPathLengthSet << pathLength;
     *_smoothedPathLengthSet << smoothedPathLength;
 
@@ -380,14 +382,14 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
     *_originalTimeSet << planningTime;
     *_smoothedTimeSet << postsmoothing_time;
 
-    OMPL_INFORM("Running B-Spline smoothing method on %s...", label);
+    OMPL_INFORM("Running B-Spline smoothing method on %s...", label.c_str());
     auto smoothed1 = planner->smoothBSpline();
     if (!smoothed1.trajectory.empty())
     {
         auto omplSmoothedTraj = new Trajectory(smoothed1.trajectory);
         stats.omplSmoothing1Collides = PlannerSettings::environment->collides(*omplSmoothedTraj);
         if (stats.omplSmoothing1Collides)
-            OMPL_WARN("%s collides with smoothed B-spline", label);
+            OMPL_WARN("%s collides with smoothed B-spline", label.c_str());
         else if (stats.exactGoalPath)
         {
             stats.omplSmoothing1Time = planningTime + smoothed1.time;
@@ -415,14 +417,14 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
         delete omplSmoothedTraj;
     }
 
-    OMPL_INFORM("Running SimplifyMax smoothing method on %s...", label);
+    OMPL_INFORM("Running SimplifyMax smoothing method on %s...", label.c_str());
     auto smoothed2 = planner->simplifyMax();
     if (!smoothed2.trajectory.empty())
     {
         auto omplSmoothedTraj = new Trajectory(smoothed2.trajectory);
         stats.omplSmoothing2Collides = PlannerSettings::environment->collides(*omplSmoothedTraj);
         if (stats.omplSmoothing2Collides)
-            OMPL_WARN("%s collides with simplify max", label);
+            OMPL_WARN("%s collides with simplify max", label.c_str());
         else if (stats.exactGoalPath)
         {
             stats.omplSmoothing2Time = planningTime + smoothed2.time;
@@ -464,14 +466,14 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
         delete omplSmoothedTraj;
     }
 
-    OMPL_INFORM("Running shortcut smoothing method on %s...", label);
+    OMPL_INFORM("Running shortcut smoothing method on %s...", label.c_str());
     auto smoothed3 = planner->shortcutPath();
     if (!smoothed3.trajectory.empty())
     {
         auto omplSmoothedTraj = new Trajectory(smoothed3.trajectory);
         stats.omplSmoothing3Collides = PlannerSettings::environment->collides(*omplSmoothedTraj);
         if (stats.omplSmoothing3Collides)
-            OMPL_WARN("%s collides with shortcut", label);
+            OMPL_WARN("%s collides with shortcut", label.c_str());
         else if (stats.exactGoalPath)
         {
             stats.omplSmoothing3Time = planningTime + smoothed3.time;
@@ -499,7 +501,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
         delete omplSmoothedTraj;
     }
 
-    OMPL_INFORM("Running Anytime Path Shortening on %s...", label);
+    OMPL_INFORM("Running Anytime Path Shortening on %s...", label.c_str());
     auto smoothed4 = planner->anytimePathShortening();
     if (!smoothed4.trajectory.empty())
     {
@@ -508,7 +510,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
         auto omplSmoothedTraj = new Trajectory(smoothed4.trajectory);
         stats.omplSmoothing4Collides = PlannerSettings::environment->collides(*omplSmoothedTraj);
         if (stats.omplSmoothing4Collides)
-            OMPL_WARN("%s collides with Anytime PS", label);
+            OMPL_WARN("%s collides with Anytime PS", label.c_str());
         else if (stats.exactGoalSmoothedPath)
         {
             stats.omplSmoothing4Time = planningTime + smoothed4.time;

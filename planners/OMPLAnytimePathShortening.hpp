@@ -18,7 +18,7 @@ public:
     bool shortcut{true};
     bool hybridize{true};
 
-    virtual ob::PlannerStatus run()// override
+    virtual ob::PlannerStatus run()
     {
         ob::PlannerPtr planner;
         planner = std::make_shared<og::AnytimePathShortening>(this->ss->getSpaceInformation());
@@ -29,37 +29,10 @@ public:
         this->ss->setPlanner(planner);
         this->ss->setup();
         auto solved = this->ss->solve(PlannerSettings::PlanningTime);
-        std::cout << "OMPL anytime path shortening planning status: " << solved.asString() << std::endl;
+        OMPL_INFORM("OMPL anytime path shortening planning status: %s", solved.asString());
 
-        if (solved)
-        {
-//            ss->simplifySolution(); // TODO define time limit?
-
-#ifdef STEER_REEDS_SHEPP
-            // Output the length of the path found
-            std::cout
-                    << planner->getName()
-                    << " found a solution of length "
-                    << this->ss->getSolutionPath().length()
-                    << " with an optimization objective value of "
-                    << this->ss->getSolutionPath().cost(this->ss->getOptimizationObjective()) << std::endl;
-#endif
-
-//            auto path = boost::static_pointer_cast<og::PathGeometric>(pdef->getSolutionPath());
-//
-//            std::vector<GNode> gnodes;
-//            for (auto *state : path->getStates())
-//            {
-//                const auto * state2D = state->as<ob::SE2StateSpace::StateType>();
-//                // Extract the robot's (x,y) position from its state
-//                double x = state2D->values[0];
-//                double y = state2D->values[1];
-//                gnodes.push_back(GNode(x, y));
-//            }
-//            QtVisualizer::drawPath(gnodes, Qt::blue, 3.f);
-        }
-        else
-            std::cout << "No solution found." << std::endl;
+        if (!solved)
+            OMPL_WARN("OMPL Anytime PS found no solution.");
         return solved;
     };
 };

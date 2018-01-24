@@ -150,7 +150,7 @@ void QtVisualizer::drawNode(const GNode &node, QColor color, double radius,
 
 void QtVisualizer::drawNode(const Tpoint &point, QColor color, double radius)
 {
-    drawNode(point.x, point.y, color, radius);
+    drawNode(point.x, point.y, std::move(color), radius);
 }
 
 void QtVisualizer::drawNode(double x, double y, QColor color, double radius)
@@ -160,7 +160,7 @@ void QtVisualizer::drawNode(double x, double y, QColor color, double radius)
     _scene->addEllipse(x - radius, y - radius, 2*radius, 2*radius, pen, QBrush(color));
 }
 
-void QtVisualizer::drawTrajectory(std::vector<GNode> nodes, QColor color,
+void QtVisualizer::drawTrajectory(std::vector<GNode> nodes, const QColor &color,
                                   float penWidth, Qt::PenStyle penStyle)
 {
     for (unsigned int i = 1; i < nodes.size(); ++i)
@@ -173,7 +173,7 @@ void QtVisualizer::drawTrajectory(std::vector<GNode> nodes, QColor color,
     }
 }
 
-void QtVisualizer::drawPath(std::vector<GNode> nodes, QColor color,
+void QtVisualizer::drawPath(std::vector<GNode> nodes, const QColor &color,
                             float penWidth, Qt::PenStyle penStyle)
 {
     if (nodes.empty())

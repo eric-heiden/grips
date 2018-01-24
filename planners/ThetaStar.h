@@ -35,32 +35,6 @@ public:
     double planningTime() const override;
 
 private:
-
-//    Trajectory *trajectory_;
-//
-//    size_t traj_step_;
-
-//    void updateGridCells();
-//
-//    void min_cost_flow(std::vector<GNode> &path);
-//
-//    double standard_deviation(std::vector<double> data);
-//
-//    double computeJerkMetric(Trajectory *traj, double t);
-//    double computeSpeedArcLengthMetric(Trajectory *traj, double t);
-//    double computePeaksMetric(Trajectory *traj, double t);
-//    double computePathLenghtMetric(Trajectory *traj);
-//    double computeCostMetric(Trajectory *traj);
-
-//    double diff_angle_unwrap(double alpha1, double alpha2);
-
-//    double set_angle_to_range(double alpha, double min);
-
-//    bool initializeSteer();
-
-//    static int getNumRand();
-//    static int getNumBest();
-
     Trajectory *curr_traj;
 
     bool COST_SEARCH;
@@ -70,13 +44,6 @@ private:
     double _planningTime;
 
     std::vector<std::vector<GNode> > global_paths;
-
-//    std::vector<double> peaks_v;
-//    std::vector<double> cost_v;
-//    std::vector<double> jerk_v;
-//    std::vector<double> spal_v;
-//    std::vector<double> pathlength_v;
-//    std::vector<double> timesol_v;
 
     bool search(std::vector<std::vector<GNode> > &paths, GNode start, GNode goal);
 

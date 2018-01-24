@@ -64,9 +64,9 @@ public:
                          QColor color = Qt::red,
                          double radius = 0.3);
 
-    static void drawTrajectory(std::vector<GNode> nodes, QColor color = Qt::white,
+    static void drawTrajectory(std::vector<GNode> nodes, const QColor &color = Qt::white,
                                float penWidth = 1.f, Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
-    static void drawPath(std::vector<GNode> nodes, QColor color = Qt::white,
+    static void drawPath(std::vector<GNode> nodes, const QColor &color = Qt::white,
                          float penWidth = 1.f, Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
     static void drawPath(std::vector<Tpoint> nodes, QColor color = Qt::white,
                          float penWidth = 1.f, Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);

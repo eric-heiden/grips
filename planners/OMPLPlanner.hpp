@@ -6,7 +6,6 @@
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/objectives/StateCostIntegralObjective.h>
 #include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
-
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/base/spaces/DubinsStateSpace.h>
@@ -28,10 +27,8 @@
 #include <ompl/geometric/planners/stride/STRIDE.h>
 #include <ompl/geometric/planners/rrt/SORRTstar.h>
 #include <ompl/geometric/PathGeometric.h>
-
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/PathSimplifier.h>
-
 
 #include "base/PlannerSettings.h"
 #include "base/PlannerUtils.hpp"
@@ -49,50 +46,29 @@ class OMPLPlanner : public AbstractPlanner
 public:
     OMPLPlanner() = default;
 
-    virtual ob::PlannerStatus run()
+    ob::PlannerStatus run() override
     {
         const ob::SpaceInformationPtr si = ss->getSpaceInformation();
-        // Construct our optimizing planner using the RRTstar algorithm.
         _omplPlanner = ob::PlannerPtr(new PLANNER(si));
         ss->setPlanner(_omplPlanner);
         ss->setup();
 
-//        // Set the problem instance for our planner to solve
-//        optimizingPlanner->setProblemDefinition(pdef);
-//        optimizingPlanner->setup();
-//        // attempt to solve the planning problem within one second of
-//        // planning time
-//        auto solved = optimizingPlanner->solve(1.0);
-
-//        auto solved = ss->solve(ob::plannerAlwaysTerminatingCondition());
         auto solved = ss->solve(PlannerSettings::PlanningTime);
-        std::cout << "OMPL planning status: " << solved.asString() << std::endl;
+        OMPL_INFORM("OMPL planning status: %s", solved.asString());
 
         if (solved)
         {
 //            ss->simplifySolution(); // TODO define time limit?
             // Output the length of the path found
-            std::cout
-                    << _omplPlanner->getName()
-                    << " found a solution of length "
-                    << ss->getSolutionPath().length()
-                    << " with an optimization objective value of "
-                    << ss->getSolutionPath().cost(ss->getOptimizationObjective()) << std::endl;
-//            auto path = boost::static_pointer_cast<og::PathGeometric>(pdef->getSolutionPath());
-//
-//            std::vector<GNode> gnodes;
-//            for (auto *state : path->getStates())
-//            {
-//                const auto * state2D = state->as<ob::SE2StateSpace::StateType>();
-//                // Extract the robot's (x,y) position from its state
-//                double x = state2D->values[0];
-//                double y = state2D->values[1];
-//                gnodes.push_back(GNode(x, y));
-//            }
-//            QtVisualizer::drawPath(gnodes, Qt::blue, 3.f);
+            OMPL_INFORM(
+                    "%s found a solution of length %f with an optimization objective value of %f",
+                    _omplPlanner->getName(),
+                    ss->getSolutionPath().length(),
+                    ss->getSolutionPath().cost(ss->getOptimizationObjective())
+            );
         }
         else
-            std::cout << "No solution found." << std::endl;
+            OMPL_WARN("No solution found.");
         return solved;
     }
 
@@ -101,7 +77,7 @@ public:
         delete ss;
     }
 
-    virtual std::vector<GNode> solutionTrajectory() const
+    std::vector<GNode> solutionTrajectory() const override
     {
         std::vector<GNode> gnodes;
         og::PathGeometric path = ss->getSolutionPath();
@@ -116,54 +92,32 @@ public:
         return gnodes;
     }
 
-    virtual std::vector<Tpoint> solutionPath() const
+    std::vector<Tpoint> solutionPath() const override
     {
         og::PathGeometric path = ss->getSolutionPath();
         path.interpolate();
         std::vector<Tpoint> points;
         for (auto *state : path.getStates())
         {
-//            const auto *state2D = state->as<ob::RealVectorStateSpace::StateType>();
-//            // Extract the robot's (x,y) position from its state
-//            double x = state2D->values[0];
-//            double y = state2D->values[1];
+            // Extract the robot's (x,y) position from its state
             const auto *s = state->as<ob::SE2StateSpace::StateType>();
-            double x=s->getX(), y=s->getY();
+            double x = s->getX(), y = s->getY();
             points.emplace_back(x, y);
         }
         return points;
-//        std::cout << "spath controls: " << ss->getSolutionPath().getControls().size() << std::endl;
-//        auto spath = oc::PathControl(ss->getSolutionPath());
-//        spath.printAsMatrix(std::cout);
-//        std::cout << "spath length: " << spath.length() << std::endl;
-//        std::cout << "spath controls: " << spath.getControls().size() << std::endl;
-//        og::PathGeometric path = spath.asGeometric();
-//        path.interpolate();
-//        std::vector<Tpoint> points;
-//        for (auto *state : path.getStates())
-//        {
-////            const auto *state2D = state->as<ob::RealVectorStateSpace::StateType>();
-////            // Extract the robot's (x,y) position from its state
-////            double x = state2D->values[0];
-////            double y = state2D->values[1];
-//            const auto *s = state->as<ob::SE2StateSpace::StateType>();
-//            double x=s->getX(), y=s->getY();
-//            points.emplace_back(x, y);
-//        }
-//        return points;
     }
 
-    virtual bool hasReachedGoalExactly() const
+    bool hasReachedGoalExactly() const override
     {
         return ss->haveExactSolutionPath();
     }
 
-    inline og::PathGeometric geometricPath() const
+    inline og::PathGeometric geometricPath() const override
     {
         return ss->getSolutionPath();
     }
 
-    double planningTime() const
+    double planningTime() const override
     {
         return ss->getLastPlanComputationTime();
     }

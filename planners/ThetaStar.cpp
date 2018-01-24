@@ -1,6 +1,7 @@
 #include <ompl/base/Planner.h>
 #include <base/PlannerUtils.hpp>
 #include <chrono>
+#include <utility>
 
 #include "AbstractPlanner.hpp"
 #include "ThetaStar.h"
@@ -26,10 +27,11 @@ ThetaStar::ThetaStar() : AbstractPlanner(), ob::Planner(ss->getSpaceInformation(
 
     _planningTime = 0;
 
-    pdef_ = ob::ProblemDefinitionPtr(new ob::ProblemDefinition(ss->getSpaceInformation()));
+    pdef_ = std::make_shared<ompl::base::ProblemDefinition>(ss->getSpaceInformation());
 }
 
-ThetaStar::ThetaStar(bool astar, std::string name) : AbstractPlanner(), ob::Planner(ss->getSpaceInformation(), name)
+ThetaStar::ThetaStar(bool astar, std::string name) : AbstractPlanner(), ob::Planner(ss->getSpaceInformation(),
+                                                                                    std::move(name))
 {
     curr_traj = new Trajectory();
 
@@ -43,37 +45,23 @@ ThetaStar::ThetaStar(bool astar, std::string name) : AbstractPlanner(), ob::Plan
 
     _planningTime = 0;
 
-    pdef_ = ob::ProblemDefinitionPtr(new ob::ProblemDefinition(ss->getSpaceInformation()));
+    pdef_ = std::make_shared<ompl::base::ProblemDefinition>(ss->getSpaceInformation());
 }
 
-ThetaStar::~ThetaStar()
-{
-}
-
-/// ==================================================================================
-/// initialize()
-/// Method to initialize all the ROS related topics
-/// ==================================================================================
+ThetaStar::~ThetaStar() = default;
 
 
 bool ThetaStar::initialize()
 {
-//    _publisher.initialize();
-//    _subscriber.initialize();
     return true;
 }
 
-/// ==================================================================================
-/// search(std::vector<std::vector<GNode> >& paths, GNode st)
-/// Theta* search
-/// ==================================================================================
 bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNode goal)
 {
     paths.clear();
 
-    OMPL_INFORM("Start: %d, %d --- Goal: %d, %d ", (int) start.x, (int) start.y, (int) goal.x, (int) goal.y);
+    OMPL_INFORM("Start: %d, %d --- Goal: %d, %d ", start.x, start.y, goal.x, goal.y);
 
-    /// STL THETA*
     std::vector<GNode> sol;
     std::vector<std::vector<GNode> > path_sol;
 
@@ -99,9 +87,6 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
         unsigned int SearchSteps = 1;
         do
         {
-            // clear highlighting of last best node
-//            _publisher.publishOpenNode(lastOpen);
-
             SearchState = thetastarsearch.SearchStep();
 
             SearchSteps++;
@@ -207,7 +192,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
 
         if (SearchState == ThetaStarSearch<GNode>::SEARCH_STATE_SUCCEEDED)
         {
-            OMPL_INFORM("Search found goal state");
+            OMPL_DEBUG("Theta* search found goal state");
 
             GNode *node = thetastarsearch.GetSolutionStart();
             int steps = 0;
@@ -215,7 +200,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
 
             xs = node->x;
             ys = node->y;
-            sol.push_back(GNode(xs, ys, node->theta, node->steer, node->steer_cost, node->costs, node->orientations));
+            sol.emplace_back(GNode(xs, ys, node->theta, node->steer, node->steer_cost, node->costs, node->orientations));
 //            OMPL_INFORM("Nodes: %d,%d,%f,%f", xs, ys, node->theta, node->steer_cost);
             // cout<<" "<<xs<<" "<<ys<<endl;
             while ((node = thetastarsearch.GetSolutionNext()))
@@ -223,7 +208,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
                 xs = (int) node->x_r;
                 ys = (int) node->y_r;
 //                OMPL_INFORM("Solution Node %d, (x_r, y_r, theta_r): (%f,%f,%f)", steps, node->x_r, node->y_r, node->theta);
-                sol.push_back(GNode(*node));
+                sol.emplace_back(*node);
                 // sol.push_back(GNode(xs,ys,node->theta,node->steer,node->steer_cost, node->costs,node->orientations,node->x_r,node->y_r));
                 GNode s(xs, ys, node->theta, node->steer, node->steer_cost, node->costs, node->orientations, node->x_r,
                         node->y_r);
@@ -237,49 +222,25 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
         }
         else if (SearchState == ThetaStarSearch<GNode>::SEARCH_STATE_FAILED)
         {
-            OMPL_ERROR("Search terminated. Did not find goal state");
+            OMPL_ERROR("Theta* search terminated. Did not find goal state");
         }
 
         // Display the number of loops the search went through
-        OMPL_INFORM("SearchSteps: %d ", (int) SearchSteps);
+        OMPL_DEBUG("Theta* SearchSteps: %d ", (int) SearchSteps);
 
         SearchCount++;
 
         thetastarsearch.EnsureMemoryFreed();
     }
 
-//    std::reverse(sol.begin(), sol.end());
     paths.push_back(sol);
 
     unsigned long path_size = paths.size();
-    OMPL_INFORM("Found [ %d ] path(s).", (int)path_size);
+    OMPL_INFORM("Theta* found [ %d ] path(s).", (int)path_size);
 
     return path_size > 0;
 }
 
-
-/// ============================================================================================
-/// getNumRand(), return the number of Random Samples to generate into the Neighbor Set of the
-/// current vertex
-/// ============================================================================================
-//int ThetaStar::getNumRand()
-//{
-//    return NRAND;
-//}
-
-/// ============================================================================================
-/// getNumRand(), return the number of Random Samples to generate into the Neighbor Set of the
-/// current vertex
-/// ============================================================================================
-//int ThetaStar::getNumBest()
-//{
-//    return NBEST;
-//}
-
-/// ============================================================================================
-/// run_global_planner()
-/// Main loop to run the global planner
-/// ===========================================================================================
 ob::PlannerStatus ThetaStar::run()
 {
     ob::ScopedState<> start(ss->getStateSpace());
@@ -298,12 +259,11 @@ ob::PlannerStatus ThetaStar::run()
 
 og::PathGeometric ThetaStar::geometricPath() const
 {
-    static constexpr double MIN_INTERPOLATION_DISTANCE = 3;
     og::PathGeometric path(ss->getSpaceInformation());
     auto gnodes = global_paths[0];
     if (gnodes.empty())
     {
-        OMPL_ERROR("The computed path contains no GNodes!");
+        OMPL_ERROR("Theta*: The computed path contains no GNodes!");
         return path;
     }
     for (auto &node : gnodes)
@@ -314,32 +274,6 @@ og::PathGeometric ThetaStar::geometricPath() const
         path.append(state);
     }
     return path;
-//    auto trajectory = PlannerUtils::toSteeredTrajectoryPoints(gnodes);
-//    auto *state = ss->getStateSpace()->allocState()->as<ob::SE2StateSpace::StateType>();
-//    state->setXY(gnodes[0].x_r, gnodes[0].y_r);
-//    state->setYaw(gnodes[0].theta);
-//    path.append(state);
-//    double arc = 0;
-////    QtVisualizer::drawNodes(gnodes, false, Qt::blue);
-//    for (std::size_t i = 1; i < trajectory.size()-1; ++i)
-//    {
-//        arc += std::sqrt(std::pow(trajectory[i].x - trajectory[i - 1].x, 2.)
-//                         + std::pow(trajectory[i].x - trajectory[i - 1].x, 2.));
-//        if (arc >= MIN_INTERPOLATION_DISTANCE)
-//        {
-//            arc = 0;
-//            state = ss->getStateSpace()->allocState()->as<ob::SE2StateSpace::StateType>();
-//            state->setXY(trajectory[i].x, trajectory[i].y);
-//            state->setYaw(PlannerUtils::slope(trajectory[i-1], trajectory[i]));
-//            path.append(state);
-////            QtVisualizer::drawNode(trajectory[i].x, trajectory[i].y);
-//        }
-//    }
-//    state = ss->getStateSpace()->allocState()->as<ob::SE2StateSpace::StateType>();
-//    state->setXY(gnodes.back().x_r, gnodes.back().y_r);
-//    state->setYaw(gnodes.back().theta);
-//    path.append(state);
-//    return path;
 }
 
 std::vector<GNode> ThetaStar::solutionTrajectory() const
@@ -394,12 +328,6 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc)
     auto *startState = pdef_->getStartState(0)->as<ob::SE2StateSpace::StateType>();
     GNode startNode(startState->getX(), startState->getY());
 
-    /// ================================
-    /// Run
-    ///     - read start pose of the robot
-    ///     - run the search
-    ///     - publish global path
-    /// ================================
     curr_traj->reset();
     global_paths.clear();
 

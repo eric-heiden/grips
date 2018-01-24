@@ -3,7 +3,6 @@
 #include <ctime>
 #include <iostream>
 
-//#include <include/collision_checker/collisionchecker.h>
 #include "Trajectory.h"
 
 struct Rectangle

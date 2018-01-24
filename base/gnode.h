@@ -16,8 +16,8 @@ public:
     /// Different constructors
     GNode()
     {
-        x = 0.0;
-        y = 0.0;
+        x = 0;
+        y = 0;
         theta = 0;
         steer_cost = 0;
         steer = false;
@@ -35,10 +35,10 @@ public:
         for (int i = 0; i < PlannerSettings::numberEdges; i++)
             orientations[i] = 0;
 
-        goal_x = PlannerSettings::environment->goal().x;
-        goal_y = PlannerSettings::environment->goal().y;
-        start_x = PlannerSettings::environment->start().x;
-        start_y = PlannerSettings::environment->start().y;
+        goal_x = (int) PlannerSettings::environment->goal().x;
+        goal_y = (int) PlannerSettings::environment->goal().y;
+        start_x = (int) PlannerSettings::environment->start().x;
+        start_y = (int) PlannerSettings::environment->start().y;
         hasParent = false;
         parent = new GNode_base();
         child = new GNode_base();
@@ -47,7 +47,7 @@ public:
     GNode(double xx, double yy)
     {
         x = (int) xx;
-        y = floor(yy);
+        y = (int) yy;
         
         theta = 0;
         steer_cost = 0;
@@ -67,10 +67,10 @@ public:
         for (int i = 0; i < PlannerSettings::numberEdges; i++)
             orientations[i] = 0;
 
-        goal_x = PlannerSettings::environment->goal().x;
-        goal_y = PlannerSettings::environment->goal().y;
-        start_x = PlannerSettings::environment->start().x;
-        start_y = PlannerSettings::environment->start().y;
+        goal_x = (int) PlannerSettings::environment->goal().x;
+        goal_y = (int) PlannerSettings::environment->goal().y;
+        start_x = (int) PlannerSettings::environment->start().x;
+        start_y = (int) PlannerSettings::environment->start().y;
         hasParent = false;
         parent = new GNode_base();
         child = new GNode_base();
@@ -79,7 +79,7 @@ public:
     GNode(double xx, double yy, double tt)
     {
         x = (int) xx;
-        y = floor(yy);
+        y = (int) yy;
         theta = tt;
         
         steer_cost = 0;
@@ -99,10 +99,10 @@ public:
         for (int i = 0; i < PlannerSettings::numberEdges; i++)
             orientations[i] = 0;
 
-        goal_x = PlannerSettings::environment->goal().x;
-        goal_y = PlannerSettings::environment->goal().y;
-        start_x = PlannerSettings::environment->start().x;
-        start_y = PlannerSettings::environment->start().y;
+        goal_x = (int) PlannerSettings::environment->goal().x;
+        goal_y = (int) PlannerSettings::environment->goal().y;
+        start_x = (int) PlannerSettings::environment->start().x;
+        start_y = (int) PlannerSettings::environment->start().y;
         hasParent = false;
         parent = new GNode_base();
         child = new GNode_base();
@@ -111,7 +111,7 @@ public:
     GNode(double xx, double yy, double tt, int type)
     {
         x = (int) xx;
-        y = floor(yy);
+        y = (int) yy;
         theta = tt;
         
         steer_cost = 0;
@@ -135,10 +135,10 @@ public:
         child = new GNode_base();
 
 
-        goal_x = PlannerSettings::environment->goal().x;
-        goal_y = PlannerSettings::environment->goal().y;
-        start_x = PlannerSettings::environment->start().x;
-        start_y = PlannerSettings::environment->start().y;
+        goal_x = (int) PlannerSettings::environment->goal().x;
+        goal_y = (int) PlannerSettings::environment->goal().y;
+        start_x = (int) PlannerSettings::environment->start().x;
+        start_y = (int) PlannerSettings::environment->start().y;
         hasParent = false;
 
     }
@@ -146,7 +146,7 @@ public:
     GNode(double xx, double yy, double tt, int type, double steer_c)
     {
         x = (int) xx;
-        y = floor(yy);
+        y = (int) yy;
         theta = tt;
         
         steer_cost = steer_c;
@@ -169,20 +169,18 @@ public:
         parent = new GNode_base();
         child = new GNode_base();
 
-        goal_x = PlannerSettings::environment->goal().x;
-        goal_y = PlannerSettings::environment->goal().y;
-        start_x = PlannerSettings::environment->start().x;
-        start_y = PlannerSettings::environment->start().y;
+        goal_x = (int) PlannerSettings::environment->goal().x;
+        goal_y = (int) PlannerSettings::environment->goal().y;
+        start_x = (int) PlannerSettings::environment->start().x;
+        start_y = (int) PlannerSettings::environment->start().y;
         hasParent = false;
     }
 
     GNode(double xx, double yy, double tt, int type, double steer_c, double *c, double *orien)
     {
         x = (int) xx;
-        y = floor(yy);
+        y = (int) yy;
         theta = (tt);
-        
-        
         
         steer_cost = steer_c;
         steer = type;
@@ -206,10 +204,10 @@ public:
         parent = new GNode_base();
         child = new GNode_base();
 
-        goal_x = PlannerSettings::environment->goal().x;
-        goal_y = PlannerSettings::environment->goal().y;
-        start_x = PlannerSettings::environment->start().x;
-        start_y = PlannerSettings::environment->start().y;
+        goal_x = (int) PlannerSettings::environment->goal().x;
+        goal_y = (int) PlannerSettings::environment->goal().y;
+        start_x = (int) PlannerSettings::environment->start().x;
+        start_y = (int) PlannerSettings::environment->start().y;
         hasParent = false;
     }
 
@@ -217,7 +215,7 @@ public:
     {
         hasParent = false;
         x = (int) xx;
-        y = floor(yy);
+        y = (int) yy;
         theta = tt;
         x_r = xxx;
         y_r = yyy;
@@ -242,10 +240,10 @@ public:
         parent = new GNode_base();
         child = new GNode_base();
 
-        goal_x = PlannerSettings::environment->goal().x;
-        goal_y = PlannerSettings::environment->goal().y;
-        start_x = PlannerSettings::environment->start().x;
-        start_y = PlannerSettings::environment->start().y;
+        goal_x = (int) PlannerSettings::environment->goal().x;
+        goal_y = (int) PlannerSettings::environment->goal().y;
+        start_x = (int) PlannerSettings::environment->start().x;
+        start_y = (int) PlannerSettings::environment->start().y;
     }
 
     GNode(const GNode &n)
@@ -282,7 +280,7 @@ public:
         child = n.child;
     }
 
-    ~GNode()
+    ~GNode() override
     {
         delete[] costs;
         delete[] orientations;
@@ -402,16 +400,6 @@ public:
 /// ============================================================================================
     Tpoint getCell()
     {
-//        if (((x - Thetastar_planner::getGrid()->minx) < 0) || ((y - Thetastar_planner::getGrid()->miny) < 0))
-//            std::cerr << "Cell coordinates out of grid! getCell()" << std::endl;
-//
-//        unsigned int cellx = ((x - Thetastar_planner::getGrid()->minx) / cellwidth);
-//        unsigned int celly = ((y - Thetastar_planner::getGrid()->miny) / cellheight);
-//
-//        if ((cellx >= (unsigned int) Thetastar_planner::getGrid()->width ||
-//             (celly >= (unsigned int) Thetastar_planner::getGrid()->height)))
-//            std::cerr << "Cell coordinates out of grid! getCell()" << std::endl;
-
         return Tpoint(std::round(x), std::round(y), 0);
     }
 
@@ -432,16 +420,7 @@ public:
 /// ============================================================================================
     bool IsSameState(GNode &rhs)
     {
-
-        if ((this->x == rhs.x) && (this->y == rhs.y))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-
+        return (this->x == rhs.x) && (this->y == rhs.y);
     }
 
 /// ============================================================================================
@@ -682,7 +661,7 @@ public:
 
         if (cnt_successors < 1)
         {
-            OMPL_INFORM(" NOSUCCESSORS!!!!!!");
+            OMPL_DEBUG("GNode has no successors!");
             return false;
         }
         else
@@ -695,12 +674,12 @@ public:
 /// float GetCost( GNode &successor )
 /// Euclidean Distance Cost
 /// ============================================================================================
-    float GetCost(GNode &successor)
+    double GetCost(GNode &successor)
     {
         double dx = (successor.x - x);
         double dy = (successor.y - y);
 
-        return sqrt(dx * dx + dy * dy);
+        return std::sqrt(dx * dx + dy * dy);
     }
 
 // ============================================================================================
@@ -726,7 +705,7 @@ public:
 ///  float GetCostTraj( GNode &successor )
 /// get the cost of the trajectory that connect the current node to the successor
 /// ============================================================================================
-    float GetCostTrajFromParent(GNode &parent, GNode &successor)
+    double GetCostTrajFromParent(GNode &parent, GNode &successor)
     {
 
         double res = PlannerSettings::steering->getBestCost(parent.x, parent.y, successor.x, successor.y);

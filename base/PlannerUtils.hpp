@@ -32,15 +32,13 @@ public:
         double dy = b.y_r - a.y_r;
         double dx = b.x_r - a.x_r;
         double x = std::atan2(dy, dx);
-        return x; // <= 0 ? 2. * M_PI + x : x; //dx < 0 && dy < 0 ? -x : x; // > 0 ? x : 2. * M_PI + x;
+        return x;
     }
 
     static bool collides(const std::vector<Tpoint> &path)
     {
         for (unsigned int i = 0; i < path.size(); ++i)
         {
-//        if (!GNode_base::line(path[i-1].x, path[i-1].y, path[i].x, path[i].y))
-//            return true;
             if (GNode_base::isblock(path[i].x, path[i].y))
             {
 #ifdef DEBUG
@@ -84,21 +82,11 @@ public:
 
     static bool collides(const GNode &a, const GNode &b)
     {
-//        static std::map<std::pair<GNode, GNode>, bool, GNodeComparator> dict;
-//        auto p = std::make_pair(a, b);
-//        std::cout << "Determining collision between 2 GNodes." << std::endl;
-//        if (dict.find(p) != dict.end())
-//        {
-//            std::cout << "Retrieved existing collision information." << std::endl;
-//            return dict[p];
-//        }
-
         auto *traj = new Trajectory();
         PlannerSettings::steering->Steer(&a, &b, traj);
         auto path = traj->getPath();
         delete traj;
         bool c = collides(path);
-//        dict[p] = c;
         return c;
     }
 
@@ -107,8 +95,6 @@ public:
         collisions.clear();
         for (unsigned int i = 1; i < path.size(); ++i)
         {
-//        if (!GNode_base::line(path[i-1].x, path[i-1].y, path[i].x, path[i].y))
-//            return true;
             if (GNode_base::isblock(path[i].x, path[i].y))
             {
 #ifdef DEBUG

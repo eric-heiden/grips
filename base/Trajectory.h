@@ -1,10 +1,11 @@
-#ifndef TRAJECTORY_H
-#define TRAJECTORY_H
+#pragma once
 
 #include <vector>
 #include <cmath>
 
-/// \brief simple point in a trajectory
+/**
+ * Simple point in a trajectory.
+ */
 typedef struct TrajectoryPoint
 {
     double x;
@@ -24,20 +25,14 @@ typedef struct TrajectoryPoint
     TrajectoryPoint(double xx, double yy, double zz) : x(xx), y(yy), z(zz)
     {}
 
-    TrajectoryPoint(double *p)
+    explicit TrajectoryPoint(const double *p)
     {
         x = p[0];
         y = p[1];
         z = p[2];
     }
 
-    TrajectoryPoint &operator=(TrajectoryPoint const &copy)
-    {
-        x = copy.x;
-        y = copy.y;
-        z = copy.z;
-        return *this;
-    }
+    TrajectoryPoint &operator=(TrajectoryPoint const &copy) = default;
 
     double distance(const TrajectoryPoint &p) const
     {
@@ -63,13 +58,16 @@ typedef struct TrajectoryPoint
 } Tpoint;
 
 
-/// \class Trajectory
-/// \brief A list of point for the robot agent to follow
+
+/**
+ * Trajectory defined as a list of points for the robot to follow.
+ */
 class Trajectory
 {
 public:
     Trajectory();
-    Trajectory(const std::vector<Tpoint> &points)
+
+    explicit Trajectory(const std::vector<Tpoint> &points)
     : path_(points), drive_path_(points)
     {}
 
@@ -80,8 +78,6 @@ public:
     void addPointEnd(Tpoint p);
 
     void addVelocities(double v_, double w_);
-
-    void addPointBegin(Tpoint p);
 
     unsigned long length()
     { return path_.size(); }
@@ -105,12 +101,8 @@ public:
     std::vector<double> v;
     std::vector<double> w;
 
-    Tpoint getNextPoint(Tpoint p);
-
 private:
 
     std::vector<Tpoint> path_;
     std::vector<Tpoint> drive_path_;
 };
-
-#endif // TRAJECTORY_H

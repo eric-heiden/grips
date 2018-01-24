@@ -19,25 +19,8 @@ public:
     // steering function settings
     static Steering::SteeringType steeringType;
     static SteerFunction *steering;
-    static double Kv;
-    static double Ktheta;
-    static double Krho;
-    static double rhoEndcondition;
 
     static void initializeSteering();
-
-    // grid environment settings
-    static double gridWidth;
-    static double gridHeight;
-    // TODO support following grid settings
-    static double minx;
-    static double miny;
-    static double cellWidth;
-    static double cellHeight;
-
-    // collision checker settings
-    static double radiusCollision;
-    static int displayInfoCollision;
 
     static double CarTurningRadius;
 

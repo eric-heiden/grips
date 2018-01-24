@@ -380,9 +380,6 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
     *_originalTimeSet << planningTime;
     *_smoothedTimeSet << postsmoothing_time;
 
-
-//        return stats; // TODO remove
-
     OMPL_INFORM("Running B-Spline smoothing method on %s...", label);
     auto smoothed1 = planner->smoothBSpline();
     if (!smoothed1.trajectory.empty())

@@ -13,6 +13,7 @@ If using GRIPS for scientific publications, please cite the following paper:
 ```
 
 ## Requirements
+* CMake >=3
 * Eigen 3
 * [OMPL ~1.3.1](https://github.com/ompl/ompl/releases)
 * Qt5 (ensure the Qt Charts and SVG packages are installed)
@@ -20,10 +21,12 @@ If using GRIPS for scientific publications, please cite the following paper:
 ## Content
 The following CMake targets are available:
 
+| CMake target      | Description                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------- |
 | `homotopy_test`   | Compares paths from Theta* and A* before/after post-smoothing w.r.t homotopy class |
 | `benchmark`       | Compares different post-smoothing and path planning algorithms (cf. Table 1) and generates statistics JSON in `log` folder |
-| `shortening_test` | Compares path-shortening results on hand-crafted path (Fig. 2) |
-| `showcase`        | Visualizes post-smoothing of Theta* path in S-shaped environment (Fig. 3) |
+| `shortening_test` | Compares path-shortening results on hand-crafted path (Fig. 2)                     |
+| `showcase`        | Visualizes post-smoothing of Theta* path in S-shaped environment (Fig. 3)          |
 
 
 ## Used third-party tools

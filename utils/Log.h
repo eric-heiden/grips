@@ -17,7 +17,7 @@ public:
     static void storeRun();
 
     static void save(std::string filename = "",
-                     std::string path = "/home/wal/catkin_ws/src/thetastar_2PBVP/thetastar_2PBVP/log/");
+                     std::string path = "log/");
 
 private:
     static nlohmann::json _json;

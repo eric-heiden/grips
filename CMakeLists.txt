@@ -51,11 +51,11 @@ link_directories(base/)
 link_directories(steer_functions/)
 
 add_executable(homotopy_test mainHomotopy.cpp ${ALL_SRC})
-add_executable(thetastar_steer main.cpp ${ALL_SRC})
+add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
 add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
 add_executable(showcase mainShowcase.cpp ${ALL_SRC})
 
-target_link_libraries(thetastar_steer
+target_link_libraries(benchmark
         ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARIES} ${EXTRA_LIB})
 
 target_link_libraries(homotopy_test

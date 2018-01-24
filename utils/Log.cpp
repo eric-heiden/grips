@@ -109,6 +109,7 @@ void Log::save(std::string filename, std::string path)
         filename = _currentRun["globals"]["time"].get<std::string>() + (std::string)".json";
     std::ofstream o(path + filename);
     o << std::setw(4) << _json << std::endl;
+    OMPL_INFORM("Saved path statistics log file at %s.", path + filename);
 }
 
 void Log::storeRun()

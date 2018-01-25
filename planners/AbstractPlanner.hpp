@@ -10,13 +10,17 @@
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
+
 #ifdef G1_AVAILABLE
     #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
+    #include "steer_functions/G1Clothoid/G1ClothoidStateSpace.h"
 #endif
 
 #include "steer_functions/POSQ/POSQStateSpace.h"
+
 #include "base/gnode.h"
 #include "base/TimedResult.hpp"
+
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;

@@ -30,11 +30,10 @@ set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Svg Qt5::Widgets Qt5::Charts)
 option(USE_G1 "Use G1 clothoid steering (not Open Source)" OFF)
 if (USE_G1)
     file(GLOB_RECURSE G1_SRC steer_functions/G1Clothoid/*.?pp)
-    add_library(g1clothoid GLOB_RECURSE
-            steer_functions/G1Clothoid/*.cc)
     set(EXTRA_SRC ${EXTRA_SRC} ${G1_SRC})
-    set(EXTRA_LIB ${EXTRA_LIB} g1clothoid)
     add_definitions(-DG1_AVAILABLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DG1_AVAILABLE")
+    MESSAGE(STATUS "G1 clothoid steering is available.")
 endif (USE_G1)
 
 include_directories(${PROJECT_SOURCE_DIR})

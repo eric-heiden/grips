@@ -107,7 +107,13 @@ void Log::log(const PathStatistics &stats)
 void Log::save(std::string filename, std::string path)
 {
     if (filename.empty())
-        filename = _currentRun["globals"]["time"].get<std::string>() + (std::string)".json";
+        filename = _json["runs"][0]["settings"]["steering"].get<std::string>() + " "
+                   + std::to_string(_json["runs"][0]["environment"]["width"].get<unsigned int>()) + "x"
+                   + std::to_string(_json["runs"][0]["environment"]["height"].get<unsigned int>()) + " "
+                   + _json["runs"][0]["environment"]["generator"].get<std::string>() + " "
+                   + std::to_string(_json["runs"][0]["environment"]["seed"].get<unsigned int>()) + " "
+                   + _currentRun["globals"]["time"].get<std::string>()
+                   + (std::string)".json";
     std::ofstream o(path + filename);
     o << std::setw(4) << _json << std::endl;
     OMPL_INFORM("Saved path statistics log file at %s.", (path + filename).c_str());

@@ -17,7 +17,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(${EIGEN3_INCLUDE_DIR})
-find_package(ompl REQUIRED)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Svg)
 find_library(Qt5 HINTS /opt/Qt5.7.0/5.7/gcc_64/lib)
@@ -54,13 +53,13 @@ add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
 add_executable(showcase mainShowcase.cpp ${ALL_SRC})
 
 target_link_libraries(benchmark
-        ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARIES} ${EXTRA_LIB})
+        -lompl ${EXTRA_LIB})
 
 target_link_libraries(homotopy_test
-        ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARIES} ${EXTRA_LIB})
+        -lompl ${EXTRA_LIB})
 
 target_link_libraries(shortening_test
-        ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARIES} ${EXTRA_LIB})
+        -lompl ${EXTRA_LIB})
 
 target_link_libraries(showcase
-        ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARIES} ${EXTRA_LIB})
+        -lompl ${EXTRA_LIB})

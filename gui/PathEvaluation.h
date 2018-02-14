@@ -46,6 +46,8 @@ public:
 
     static PathStatistics add(AbstractPlanner *planner, std::string label, QColor color);
 
+    static std::vector<double> computeObstacleDistances(const std::vector<Tpoint> &path);
+
 private:
     static QGridLayout *_layout;
     static QWidget *_window;
@@ -67,7 +69,7 @@ private:
     static double _maxTime;
 
     static double findMedian(const std::vector<double> &distances, size_t l, size_t r);
-    static std::vector<double> computeObstacleDistances(const std::vector<Tpoint> &path);
+
     static QBoxSet *computeBox(std::vector<double> &distances, std::string label);
 
 

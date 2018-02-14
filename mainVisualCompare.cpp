@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     ourSmoothing.smooth(ourSmoothed);
     QColor qc("#36F");
     QtVisualizer::drawPath(PlannerUtils::toSteeredTrajectoryPoints(ourSmoothed), qc, 4);
-    QtVisualizer::addLegendEntry(LegendEntry("Ours", QPen(qc, 4.)));
+    QtVisualizer::addLegendEntry(LegendEntry("GRIPS", QPen(qc, 4.)));
 
     OMPLSimplifier simplifier(path);
 

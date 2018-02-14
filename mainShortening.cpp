@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     std::vector<GNode> ourSmoothed(path);
     ourSmoothing.smooth(ourSmoothed);
     QtVisualizer::drawPath(PlannerUtils::toSteeredTrajectoryPoints(ourSmoothed), Qt::black, 4);
-    QtVisualizer::addLegendEntry(LegendEntry("Ours", QPen(Qt::black, 4.)));
+    QtVisualizer::addLegendEntry(LegendEntry("GRIPS", QPen(Qt::black, 4.)));
 
     OMPLSimplifier simplifier(path);
 

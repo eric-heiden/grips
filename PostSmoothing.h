@@ -16,29 +16,6 @@
 class PostSmoothing
 {
 public:
-    static constexpr double MIN_NODE_DISTANCE = 3; //4; //2.5;
-
-    /*
-     * Gradient descent rate.
-     */
-    static constexpr double ETA = 0.5; //0.3; //0.1;//0.5;
-
-    /*
-     * Discount factor for gradient descent rate.
-     */
-    static constexpr double ETA_DISCOUNT = 0.8;
-
-    /**
-     * Number of gradient descent rounds.
-     */
-    static const unsigned int GRADIENT_DESCENT_ROUNDS = 5;
-
-    /**
-     * Maximum number of pruning rounds after which the algorithm
-     * should terminate.
-     */
-    static const unsigned int MAX_PRUNING_ROUNDS = 100;
-
     static const bool MINIMIZE_PATHLENGTH = true; // otherwise minimize curvature
 
     static const bool FIX_COLLISIONS = false;

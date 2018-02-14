@@ -51,15 +51,10 @@ add_executable(homotopy_test mainHomotopy.cpp ${ALL_SRC})
 add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
 add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
 add_executable(showcase mainShowcase.cpp ${ALL_SRC})
+add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
 
-target_link_libraries(benchmark
-        -lompl ${EXTRA_LIB})
-
-target_link_libraries(homotopy_test
-        -lompl ${EXTRA_LIB})
-
-target_link_libraries(shortening_test
-        -lompl ${EXTRA_LIB})
-
-target_link_libraries(showcase
-        -lompl ${EXTRA_LIB})
+target_link_libraries(benchmark -lompl ${EXTRA_LIB})
+target_link_libraries(homotopy_test -lompl ${EXTRA_LIB})
+target_link_libraries(shortening_test -lompl ${EXTRA_LIB})
+target_link_libraries(showcase -lompl ${EXTRA_LIB})
+target_link_libraries(visual_compare -lompl ${EXTRA_LIB})

@@ -30,4 +30,29 @@ public:
     static bool VisualizeSmoothing2;
     static bool VisualizeSmoothing3;
     static bool VisualizeSmoothing4;
+
+    // GRIPS settings
+
+    /*
+     * Minimum distance to be maintained between two consecutive nodes.
+     */
+    static double gripsMinNodeDistance;
+    /*
+     * Gradient descent rate.
+     */
+    static double gripsEta;
+    /*
+     * Discount factor for gradient descent rate.
+     */
+    static double gripsEtaDiscount;
+
+    /**
+     * Number of gradient descent rounds.
+     */
+    static unsigned int gripsGradientDescentRounds;
+    /**
+     * Maximum number of pruning rounds after which the algorithm
+     * should terminate.
+     */
+    static unsigned int gripsMaxPruningRounds;
 };

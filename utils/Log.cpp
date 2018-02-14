@@ -19,11 +19,11 @@ void Log::instantiateRun()
                                  {"steering", Steering::to_string(PlannerSettings::steeringType)},
                                  {"carTurningRadius", PlannerSettings::CarTurningRadius},
                                  {"ourSmoothing", {
-                                      {"minNodeDistance", PostSmoothing::MIN_NODE_DISTANCE},
-                                      {"eta", PostSmoothing::ETA},
-                                      {"etaDiscount", PostSmoothing::ETA_DISCOUNT},
-                                      {"gdRounds", PostSmoothing::GRADIENT_DESCENT_ROUNDS},
-                                      {"pruningRounds", PostSmoothing::MAX_PRUNING_ROUNDS},
+                                      {"minNodeDistance", PlannerSettings::gripsMinNodeDistance},
+                                      {"eta", PlannerSettings::gripsEta},
+                                      {"etaDiscount", PlannerSettings::gripsEtaDiscount},
+                                      {"gdRounds", PlannerSettings::gripsGradientDescentRounds},
+                                      {"pruningRounds", PlannerSettings::gripsMaxPruningRounds},
                                       {"minimizePathLength", PostSmoothing::MINIMIZE_PATHLENGTH},
                                       {"fixCollisions", PostSmoothing::FIX_COLLISIONS}
                                  }}

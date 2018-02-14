@@ -31,8 +31,8 @@ bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &
     PlannerUtils::updateAngles(path, AverageAngles);
 
     double dx, dy;
-    double eta = ETA; // gradient descent step size
-    for (int round = 0; round < GRADIENT_DESCENT_ROUNDS; ++round)
+    double eta = PlannerSettings::gripsEta; // gradient descent step size
+    for (int round = 0; round < PlannerSettings::gripsGradientDescentRounds; ++round)
     {
         beginRound(ROUND_GD);
         // gradient descent along distance field
@@ -45,7 +45,7 @@ bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &
             path[i].x_r -= eta * dx / distance;
             path[i].y_r += eta * dy / distance;
         }
-        eta *= ETA_DISCOUNT; // discount factor
+        eta *= PlannerSettings::gripsEtaDiscount; // discount factor
 
         PlannerUtils::updateAngles(path, AverageAngles);
 
@@ -79,8 +79,8 @@ bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &
                 double distance = PlannerSettings::environment->bilinearDistance(p.x, p.y);
                 double difference = distance - lastDistance;
                 if (lastDifference < 0 && difference > 0
-                    && lastNodePosition.distance(p.x, p.y) >= MIN_NODE_DISTANCE
-                    && nextNodePosition.distance(p.x, p.y) >= MIN_NODE_DISTANCE)
+                    && lastNodePosition.distance(p.x, p.y) >= PlannerSettings::gripsMinNodeDistance
+                    && nextNodePosition.distance(p.x, p.y) >= PlannerSettings::gripsMinNodeDistance)
                 {
                     // local minimum
                     npath.emplace_back(GNode(p.x, p.y));
@@ -115,7 +115,7 @@ bool PostSmoothing::smooth(std::vector<GNode> &path, const std::vector<Tpoint> &
     do
     {
         beginRound(ROUND_PRUNING);
-        if (pruningRound >= MAX_PRUNING_ROUNDS)
+        if (pruningRound >= PlannerSettings::gripsMaxPruningRounds)
         {
             OMPL_ERROR("Giving up pruning after %i rounds. The smoothed trajectory most likely collides.",
                        pruningRound);

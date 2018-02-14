@@ -43,3 +43,10 @@ void PlannerSettings::initializeSteering()
     }
 #endif
 }
+
+// GRIPS settings
+double PlannerSettings::gripsMinNodeDistance = 3;
+double PlannerSettings::gripsEta = 0.5;
+double PlannerSettings::gripsEtaDiscount = 0.8;
+unsigned int PlannerSettings::gripsGradientDescentRounds = 5;
+unsigned int PlannerSettings::gripsMaxPruningRounds = 100;

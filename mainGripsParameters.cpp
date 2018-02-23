@@ -42,6 +42,8 @@ int main(int argc, char **argv)
 
     ompl::msg::setLogLevel(ompl::msg::LogLevel::LOG_NONE);
 
+    Stopwatch stopwatch;
+
     for (auto eta : {0.25, 0.5, 0.75})
     {
         for (auto etaDiscount : {0.5, 0.8, 0.95})
@@ -58,15 +60,17 @@ int main(int argc, char **argv)
 
                 PostSmoothing ourSmoothing;
                 std::vector<GNode> ourSmoothed(path);
+                stopwatch.start();
                 ourSmoothing.smooth(ourSmoothed);
+                double time = stopwatch.stop();
                 auto steered = PlannerUtils::toSteeredTrajectoryPoints(ourSmoothed);
                 QtVisualizer::drawPath(steered, qc, 4);
 
-                std::cout << PlannerUtils::collides(steered) << " & $";
+                //std::cout << PlannerUtils::collides(steered) << " & $";
 
                 auto *smoothedTraj = new Trajectory(steered);
                 double pathLength = PathLengthMetric::evaluate(smoothedTraj);
-                std::cout << std::setprecision(4) << pathLength << "$ & $";
+                std::cout << std::setprecision(4) << pathLength << " & $";
                 double curvature = CurvatureMetric::evaluateMetric(smoothedTraj, 0, false);
                 std::cout << std::setprecision(3) << curvature << "$ & $";
 
@@ -82,7 +86,8 @@ int main(int argc, char **argv)
                     stddev += std::pow(d - mean, 2.);
                 stddev = std::sqrt(stddev / (smoothedDistances.size() - 1));
                 std::cout << " \\SI{" << mean << " \\pm " << stddev;
-                std::cout << "}{} \\\\" << std::endl;
+                std::cout << "}{} & ";
+                std::cout << (int)(time * 1000) << " \\\\" << std::endl;
             }
         }
     }

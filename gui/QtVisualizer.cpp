@@ -61,7 +61,7 @@ int QtVisualizer::exec()
     return _app->exec();
 }
 
-void QtVisualizer::visualize(Environment &environment, int run)
+void QtVisualizer::visualize(Environment &environment, int run, bool renderDistances)
 {
     _window->setWindowTitle(QString("Theta* Trajectory Planning (run %1)").arg(run));
     _scene->setSceneRect(0, 0, environment.width()+1, environment.height()+1);
@@ -107,21 +107,21 @@ void QtVisualizer::visualize(Environment &environment, int run)
                 _scene->addRect(x, y, 1, 1, pen, QColor(128, 128, 128));
 //            _scene->addEllipse(x-.25, y-.25, 0.4, 0.4, pen,
 //                            QColor::fromHslF(std::max(0., std::min(.65, environment.distance(x, y) * .1)), 1., .6));
-//            else
-//            {
-//                _scene->addRect(x, y, 0.5, 0.5, pen,
-//                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.25, y+.25) * .1), 1.,
-//                                                 .6));
-//                _scene->addRect(x + 0.5, y, 0.5, 0.5, pen,
-//                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.75, y+.25) * .1), 1.,
-//                                                 .6));
-//                _scene->addRect(x, y + 0.5, 0.5, 0.5, pen,
-//                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.25, y+.75) * .1), 1.,
-//                                                 .6));
-//                _scene->addRect(x + 0.5, y + 0.5, 0.5, 0.5, pen,
-//                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.75, y+.75) * .1), 1.,
-//                                                 .6));
-//            }
+            else if (renderDistances)
+            {
+                _scene->addRect(x, y, 0.5, 0.5, pen,
+                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.25, y+.25) * .1), 1.,
+                                                 .6));
+                _scene->addRect(x + 0.5, y, 0.5, 0.5, pen,
+                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.75, y+.25) * .1), 1.,
+                                                 .6));
+                _scene->addRect(x, y + 0.5, 0.5, 0.5, pen,
+                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.25, y+.75) * .1), 1.,
+                                                 .6));
+                _scene->addRect(x + 0.5, y + 0.5, 0.5, 0.5, pen,
+                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.75, y+.75) * .1), 1.,
+                                                 .6));
+            }
         }
     }
 
@@ -163,14 +163,16 @@ void QtVisualizer::drawNode(double x, double y, QColor color, double radius)
 void QtVisualizer::drawTrajectory(std::vector<GNode> nodes, const QColor &color,
                                   float penWidth, Qt::PenStyle penStyle)
 {
+    std::vector<Tpoint> path;
     for (unsigned int i = 1; i < nodes.size(); ++i)
     {
         auto *traj = new Trajectory();
         PlannerSettings::steering->Steer(&nodes[i - 1], &nodes[i], traj);
         auto tpath = traj->getPath();
-        drawPath(tpath, color, penWidth, penStyle);
+        path.insert(path.end(), tpath.begin(), tpath.end());
         delete traj;
     }
+    drawPath(path, color, penWidth, penStyle);
 }
 
 void QtVisualizer::drawPath(std::vector<GNode> nodes, const QColor &color,
@@ -351,6 +353,54 @@ void QtVisualizer::showStartGoal(bool show)
     _showStartGoal = show;
 }
 
+void QtVisualizer::savePng(const QString &fileName)
+{
+    QRectF newSceneRect;
+    for (auto *item: _scene->items())
+    {
+        newSceneRect |= item->mapToScene(item->boundingRect()).boundingRect();
+    }
+    _scene->setSceneRect(newSceneRect);
+    _scene->clearSelection();
+
+    QImage image(_scene->sceneRect().size().toSize().scaled(2000, 2000, Qt::KeepAspectRatio),
+                 QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
+
+    QPainter painter(&image);
+    _scene->render(&painter);
+    image.save(fileName);
+
+    std::cout << "Saved PNG at " << fileName.toStdString() << std::endl;
+}
+
+void QtVisualizer::saveSvg(const QString &fileName)
+{
+    QRectF newSceneRect;
+    for (auto *item: _scene->items())
+    {
+        newSceneRect |= item->mapToScene(item->boundingRect()).boundingRect();
+    }
+    _scene->setSceneRect(newSceneRect);
+    _scene->clearSelection();
+    QSize sceneSize = newSceneRect.size().toSize();
+    sceneSize.setWidth(sceneSize.width() * 10);
+    sceneSize.setHeight(sceneSize.height() * 10);
+
+    QSvgGenerator generator;
+    generator.setFileName(fileName);
+    generator.setSize(sceneSize);
+    generator.setViewBox(QRect(0, 0, sceneSize.width(), sceneSize.height()));
+    generator.setDescription(QObject::tr("Post-smoothing Trajectories"));
+    generator.setTitle(fileName);
+    QPainter painter;
+    painter.begin(&generator);
+    _scene->render(&painter);
+    painter.end();
+
+    std::cout << "Saved SVG at " << fileName.toStdString() << std::endl;
+}
+
 VisualizationView::VisualizationView(QGraphicsScene *scene, QWidget *parent)
     : QGraphicsView(parent), _numScheduledScalings(1), _scene(scene)
 {
@@ -397,27 +447,7 @@ void VisualizationView::saveSvg()
     if (filename.isNull())
         return;
 
-    QRectF newSceneRect;
-    for (auto *item: _scene->items())
-    {
-        newSceneRect |= item->mapToScene(item->boundingRect()).boundingRect();
-    }
-    _scene->setSceneRect(newSceneRect);
-    _scene->clearSelection();
-    QSize sceneSize = newSceneRect.size().toSize();
-    sceneSize.setWidth(sceneSize.width() * 10);
-    sceneSize.setHeight(sceneSize.height() * 10);
-
-    QSvgGenerator generator;
-    generator.setFileName(filename);
-    generator.setSize(sceneSize);
-    generator.setViewBox(QRect(0, 0, sceneSize.width(), sceneSize.height()));
-    generator.setDescription(QObject::tr("Post-smoothing Trajectories"));
-    generator.setTitle(filename);
-    QPainter painter;
-    painter.begin(&generator);
-    _scene->render(&painter);
-    painter.end();
+    QtVisualizer::saveSvg(filename);
 }
 
 void VisualizationView::savePng()
@@ -428,19 +458,5 @@ void VisualizationView::savePng()
     if (filename.isNull())
         return;
 
-    QRectF newSceneRect;
-    for (auto *item: _scene->items())
-    {
-        newSceneRect |= item->mapToScene(item->boundingRect()).boundingRect();
-    }
-    _scene->setSceneRect(newSceneRect);
-    _scene->clearSelection();
-
-    QImage image(_scene->sceneRect().size().toSize().scaled(2000, 2000, Qt::KeepAspectRatio),
-                 QImage::Format_ARGB32);
-    image.fill(Qt::transparent);
-
-    QPainter painter(&image);
-    _scene->render(&painter);
-    image.save(filename);
+    QtVisualizer::savePng(filename);
 }

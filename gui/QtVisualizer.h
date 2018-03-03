@@ -51,7 +51,7 @@ public:
         _window->showMaximized();
     }
 
-    static void visualize(Environment &environment, int run);
+    static void visualize(Environment &environment, int run, bool renderDistances = false);
 
     static void drawNode(const GNode &node,
                          QColor color = Qt::red,
@@ -86,6 +86,9 @@ public:
     static void drawLegend();
 
     static void showStartGoal(bool show = true);
+
+    static void savePng(const QString &fileName);
+    static void saveSvg(const QString &fileName);
 
     virtual ~QtVisualizer();
 

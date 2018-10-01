@@ -2,7 +2,10 @@
 
 #include <QtCore/Qt>
 #include <QtGui/QColor>
+
 #include <utility>
+#include <vector>
+#include <cmath>
 
 struct PathStatistics
 {

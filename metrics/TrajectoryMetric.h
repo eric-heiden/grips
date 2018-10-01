@@ -34,10 +34,9 @@ public:
      * @param b Path of GNodes.
      * @return 1 if a is better than b, 0 if a and b have the same value, -1 if b is better than a
      */
-    static int compare(const std::vector<GNode> &a, const std::vector<GNode> &b,
-                       Steer_base *steerFunction)
+    static int compare(const std::vector<GNode> &a, const std::vector<GNode> &b)
     {
-        double va = evaluate(a, steerFunction), vb = evaluate(b, steerFunction);
+        double va = evaluate(a), vb = evaluate(b);
         if (std::abs(va - vb) < ComparisonTolerance)
             return 0;
         if (METRIC::MoreIsBetter && va > vb)

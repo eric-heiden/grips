@@ -826,20 +826,29 @@ void PathStatisticsAggregator::showSummary()
     Table resultsTable;
     resultsTable.header = std::vector<std::string>{"Ours", "B-Spline", "SimplifyMax", "Shortcut", "Anytime PS"};
     resultsTable.rows.push_back(std::make_pair<std::string, std::vector<double> >(
-            "Path not found", std::vector<double>{pathNotFound, pathNotFound, pathNotFound,
-                                                  pathNotFound, anytimeNotFound}));
+            "Path not found", std::vector<double>{(double) pathNotFound,
+                                                  (double) pathNotFound,
+                                                  (double) pathNotFound,
+                                                  (double) pathNotFound,
+                                                  (double) anytimeNotFound}));
     resultsTable.rows.push_back(std::make_pair<std::string, std::vector<double> >(
-            "Missed exact goal", std::vector<double>{pathNotExactGoal, pathNotExactGoal, pathNotExactGoal,
-                                                     pathNotExactGoal, anytimeNotExactGoal}));
+            "Missed exact goal", std::vector<double>{(double) pathNotExactGoal,
+                                                     (double) pathNotExactGoal,
+                                                     (double) pathNotExactGoal,
+                                                     (double) pathNotExactGoal,
+                                                     (double) anytimeNotExactGoal}));
     resultsTable.rows.push_back(std::make_pair<std::string, std::vector<double> >(
-            "Collided", std::vector<double>{ourSmoothingCollisions, omplSmoothing1Collisions, omplSmoothing2Collisions,
-                                            omplSmoothing3Collisions, omplSmoothing4Collisions}));
+            "Collided", std::vector<double>{(double) ourSmoothingCollisions,
+                                            (double) omplSmoothing1Collisions,
+                                            (double) omplSmoothing2Collisions,
+                                            (double) omplSmoothing3Collisions,
+                                            (double) omplSmoothing4Collisions}));
     resultsTable.rows.push_back(std::make_pair<std::string, std::vector<double> >(
-            "Correct", std::vector<double>{maxplots-pathNotFound-pathNotExactGoal-ourSmoothingCollisions,
-                                           maxplots-pathNotFound-pathNotExactGoal-omplSmoothing1Collisions,
-                                           maxplots-pathNotFound-pathNotExactGoal-omplSmoothing2Collisions,
-                                           maxplots-pathNotFound-pathNotExactGoal-omplSmoothing3Collisions,
-                                           maxplots-anytimeNotFound-anytimeNotExactGoal-omplSmoothing4Collisions}));
+            "Correct", std::vector<double>{(double) (maxplots-pathNotFound-pathNotExactGoal-ourSmoothingCollisions),
+                                           (double) (maxplots-pathNotFound-pathNotExactGoal-omplSmoothing1Collisions),
+                                           (double) (maxplots-pathNotFound-pathNotExactGoal-omplSmoothing2Collisions),
+                                           (double) (maxplots-pathNotFound-pathNotExactGoal-omplSmoothing3Collisions),
+                                           (double) (maxplots-anytimeNotFound-anytimeNotExactGoal-omplSmoothing4Collisions)}));
 
     resultsTable.addStatsRows("Curvature", ourCurvatures,
                  omplSmoothing1Curvatures, omplSmoothing2Curvatures,

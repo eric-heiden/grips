@@ -98,7 +98,7 @@ public:
         return _grid[index];
     }
 
-    inline bool occupied(double x, double y, bool fast = false)
+    inline bool occupied(double x, double y, bool fast)
     {
         if (x < 0 || y < 0 || x > _width || y > _height)
             return true;

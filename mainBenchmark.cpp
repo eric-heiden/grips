@@ -54,7 +54,7 @@ int main(int argc, char **argv)
         PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 5, 40, //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
                                                                          (unsigned int) (time(nullptr) + totalRun));
 
-//            PlannerSettings::environment = Environment::createRandom(50, 50, .05);
+//        PlannerSettings::environment = Environment::createRandom(50, 50, .05);
 //        PlannerSettings::environment = Environment::createSimple();
 
             QtVisualizer::visualize(*PlannerSettings::environment, run);

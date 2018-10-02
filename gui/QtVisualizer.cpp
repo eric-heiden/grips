@@ -103,7 +103,7 @@ void QtVisualizer::visualize(Environment &environment, int run, bool renderDista
 
         for (unsigned y = 0; y <= environment.height(); ++y)
         {
-            if (environment.occupied(x, y))
+            if (environment.occupiedCell(x, y))
                 _scene->addRect(x, y, 1, 1, pen, QColor(128, 128, 128));
 //            _scene->addEllipse(x-.25, y-.25, 0.4, 0.4, pen,
 //                            QColor::fromHslF(std::max(0., std::min(.65, environment.distance(x, y) * .1)), 1., .6));

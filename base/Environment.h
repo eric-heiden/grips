@@ -98,7 +98,7 @@ public:
         return _grid[index];
     }
 
-    inline bool occupied(double x, double y, bool fast)
+    inline bool occupied(double x, double y, bool fast = false)
     {
         if (x < 0 || y < 0 || x > _width || y > _height)
             return true;
@@ -111,7 +111,7 @@ public:
                || _grid[coord2key(x-.15, y-.15)];
     }
 
-    inline bool occupied(unsigned int xi, unsigned int yi) const
+    inline bool occupiedCell(unsigned int xi, unsigned int yi) const
     {
         return _grid[yi * _width + xi];
     }
@@ -164,8 +164,8 @@ public:
         yi = std::max(std::min(_height, yi), (unsigned int) 0); // repeat voxels at edge
         unsigned int xp = std::max(std::min(_width, xi + 1), (unsigned int) 0);
         unsigned int yp = std::max(std::min(_height, yi + 1), (unsigned int) 0);
-        double tl = occupied(xi, yi), tr = occupied(xp, yi);
-        double bl = occupied(xi, yp), br = occupied(xp, yp);
+        double tl = occupiedCell(xi, yi), tr = occupiedCell(xp, yi);
+        double bl = occupiedCell(xi, yp), br = occupiedCell(xp, yp);
         return   ((1-tl) * u_opposite + (1-tr) * u_ratio) * v_opposite
                + ((1-bl) * u_opposite + (1-br) * u_ratio) * v_ratio;
     }
@@ -231,7 +231,7 @@ public:
                     stream << "G";
                 else if (std::round(_start.x) == x && std::round(_start.y) == y)
                     stream << "S";
-                else if (occupied(x, y))
+                else if (occupiedCell(x, y))
                     stream << "#";
                 else
                     stream << " ";

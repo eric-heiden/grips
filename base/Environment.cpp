@@ -370,7 +370,7 @@ std::vector<Rectangle> Environment::obstacles() const
     {
         for (unsigned int y = 0; y <= _height; ++y)
         {
-            if (!occupied(x, y))
+            if (!occupiedCell(x, y))
                 continue;
 
             obs.emplace_back(x, y, x+1, y+1);
@@ -386,7 +386,7 @@ std::vector<Rectangle> Environment::obstacles(double x1, double y1, double x2, d
     {
         for (auto y = (unsigned int) std::round(y1); y <= std::round(y2); ++y)
         {
-            if (!occupied(x, y))
+            if (!occupiedCell(x, y))
                 continue;
 
             obs.emplace_back(x, y, x+1, y+1);
@@ -438,7 +438,7 @@ double Environment::obstacleRatio() const
     for (unsigned int x = 0; x <= _width; ++x)
     {
         for (unsigned int y = 0; y <= _height; ++y)
-            occ += (int) occupied(x, y);
+            occ += (int) occupiedCell(x, y);
 
     }
     return (double) (occ) / (double) ((_width + 1) * (_height + 1));
